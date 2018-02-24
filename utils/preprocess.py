@@ -9,7 +9,8 @@ from datetime import datetime
 
 
 ### GLOBALS
-dataset_dir = '/Users/dewalgupta/Documents/ucsd/291d/activitynet/micro-kinetics/'
+#dataset_dir = '/Users/dewalgupta/Documents/ucsd/291d/activitynet/micro-kinetics/'
+dataset_dir = '/Users/patrickhayes/workspace/CSE291D/Action_Recognition/data/Kinetics/videos/train'
 ###
 
 
@@ -30,12 +31,12 @@ def resize_crop(img: np.ndarray) -> np.ndarray:
 
     random.seed(datetime.now())
     resize = misc.imresize(img, (new_h, new_w), 'bilinear')
-    wrange = resize.shape[1] - 244
-    hrange = resize.shape[0] - 244
+    wrange = resize.shape[1] - 224
+    hrange = resize.shape[0] - 224
     w_crop = random.randint(0, wrange)
     h_crop = random.randint(0, hrange)
 
-    return resize[h_crop:h_crop+244, w_crop:w_crop+244]
+    return resize[h_crop:h_crop+224, w_crop:w_crop+224]
 
 
 def createJPGs(video, dest):
