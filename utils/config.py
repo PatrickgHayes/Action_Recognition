@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 FRAME_DATA_PATH = './videos.txt'
+DATA_DIR = '/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/'
 NUM_GPUS = 1
 CROP_SIZE = 224
 NUM_CLASSES = 101

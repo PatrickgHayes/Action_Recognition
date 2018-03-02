@@ -3,13 +3,14 @@ import glob
 import random
 import tempfile
 import subprocess
+import config
 import numpy as np
 from scipy import misc
 from datetime import datetime
 
 
 ### GLOBALS
-dataset_dir = '/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/'
+dataset_dir = config.DATA_DIR
 ###
 
 
