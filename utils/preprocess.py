@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 ### GLOBALS
-dataset_dir = '/Users/dewalgupta/Documents/ucsd/291d/activitynet/micro-kinetics/'
+dataset_dir = '/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/'
 ###
 
 
@@ -30,12 +30,12 @@ def resize_crop(img: np.ndarray) -> np.ndarray:
 
     random.seed(datetime.now())
     resize = misc.imresize(img, (new_h, new_w), 'bilinear')
-    wrange = resize.shape[1] - 244
-    hrange = resize.shape[0] - 244
+    wrange = resize.shape[1] - 224
+    hrange = resize.shape[0] - 224
     w_crop = random.randint(0, wrange)
     h_crop = random.randint(0, hrange)
 
-    return resize[h_crop:h_crop+244, w_crop:w_crop+244]
+    return resize[h_crop:h_crop+224, w_crop:w_crop+224]
 
 
 def createJPGs(video, dest):
@@ -43,8 +43,10 @@ def createJPGs(video, dest):
     creates the jpegs by calling the ffmpeg
     '''
     video = str(video).replace(' ', '\ ')
+    dest = str(dest).replace(' ', '\ ')
+    command = "ffmpeg -i " + video + " -r 25.0 " + dest
     proc = subprocess.Popen(
-        "ffmpeg -i " + video + " -r 25.0 " + dest,
+        command,
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         cwd='.'
     )
@@ -71,21 +73,27 @@ def main():
         os.chdir(label_path)
         for video in glob.glob("*.mp4"):
             print("\tprocessing video: " + video)
-            l = list()
-            with tempfile.TemporaryDirectory() as dirpath:
-                os.chdir(dirpath)
-                video_path = os.path.join(label_path, video)
-                createJPGs(video_path, "img%4d.jpg")
-                for img in glob.glob("*.jpg"):
-                    npimg = misc.imread(img)
-                    cropped = resize_crop(npimg)
-                    scaled = 2*(cropped/255) - 1
-                    l.append(scaled)
-
-                npy = np.array(l)
-                save_fn = os.path.join(dataset_dir, label, os.path.splitext(video)[0])
-                np.save(save_fn, npy)
-                print("\tsaved video with shape: " + str(npy.shape))
+            # l = list()
+            dest_name = os.path.splitext(video)[0]
+            if dest_name not in os.listdir():
+                os.mkdir(dest_name)
+            video_path = os.path.join(label_path, video)
+            dest_name = os.path.join(dest_name, "img%4d.jpg")
+            createJPGs(video_path, dest_name)
+            # with tempfile.TemporaryDirectory() as dirpath:
+            #     os.chdir(dirpath)
+            #     video_path = os.path.join(label_path, video)
+            #     createJPGs(video_path, "img%4d.jpg")
+            #     for img in glob.glob("*.jpg"):
+            #         npimg = misc.imread(img)
+            #         cropped = resize_crop(npimg)
+            #         scaled = 2*(cropped/255) - 1
+            #         l.append(scaled)
+            #
+            #     npy = np.array(l)
+            #     save_fn = os.path.join(dataset_dir, label, os.path.splitext(video)[0])
+            #     np.save(save_fn, npy)
+            #     print("\tsaved video with shape: " + str(npy.shape))
 
 
 if __name__ == '__main__':

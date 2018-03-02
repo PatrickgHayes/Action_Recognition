@@ -1,0 +1,44 @@
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/4uRG1e66WHM_000003_000013
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/6rB3M9DYbWo_000002_000012
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/_6tYrFSMRW4_000000_000010
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/CDIyErzttyg_000079_000089
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/LGM_DJrTjG8_000001_000011
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/qyHurkZFOp0_000002_000012
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/R3CPvvTKDIY_000012_000022
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/Xz7qiB-YcHI_000003_000013
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/zPnxWJkxhWs_000002_000012
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/-bUy1bweZ1U_000023_000033
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/7zblnwG_7Ak_000057_000067
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/9WCaHA0PIWU_000024_000034
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/Gpj3iOcyWwM_000104_000114
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/Idw3FTQE-PM_000009_000019
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/K8k7t6jwX4s_000136_000146
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/LKLt4dfGMbs_000054_000064
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/pUlKTO-upiY_000392_000402
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/uZFdkXCQtvU_000000_000010
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/4GIH3JYb6no_000060_000070
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/dT0xlEDaXkY_000010_000020
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/F3WuAXBejxc_000750_000760
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/gWVHLsGunZs_000119_000129
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/HXv-lYGMek8_000085_000095
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/kbjjQ37YOGw_000088_000098
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/okHlgXPYFSo_000043_000053
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/pj8TWS7KEeY_000024_000034
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/uGICtTPcvA8_000246_000256
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/yGokvkm1-UU_000125_000135
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/5SqUqHyFxpo_000958_000968
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/7cyDyYbpvF0_000530_000540
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/7FfUUuvD9Xo_000070_000080
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/9y9G0Hg9sU4_000506_000516
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/MwHRZLBEyug_000057_000067
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/sSNWe9F2N_g_000386_000396
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/zOufKQ9BRqE_000409_000419
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/3pZ3Nvm4jo0_000000_000010
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/cu6m2i7YIGM_000015_000025
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/dpfT5WIRanY_000045_000055
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/fZ0IO--Q-ZQ_000014_000024
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/KIs4zRu6ct4_000072_000082
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/NcDrVMPY2TY_000026_000036
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/nVnm-h_DdNg_000158_000168
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/QhrJ8vJ89KU_000051_000061
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/ZOWUraZn_wQ_000049_000059
