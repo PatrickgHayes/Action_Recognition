@@ -1,0 +1,5 @@
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cartwheeling/4uRG1e66WHM_000003_000013
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cleaning gutters/bUy1bweZ1U_000023_000033
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/cooking chicken/4GIH3JYb6no_000060_000070
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/filling eyebrows/5SqUqHyFxpo_000958_000968
+/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/playing recorder/3pZ3Nvm4jo0_000000_000010
