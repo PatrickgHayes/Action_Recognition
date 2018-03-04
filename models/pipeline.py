@@ -10,7 +10,7 @@ CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
 DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
-CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map.txt"
+CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
 
 
 class Pipeline(object):
@@ -94,7 +94,10 @@ class Pipeline(object):
         return output_rgb, label
 
     def get_dataset(self):
-        return tf.data.Dataset.from_generator(self.__iter__, (tf.float32, tf.int32))
+        return tf.data.Dataset.from_generator(self.__iter__,
+                                              (tf.float32, tf.int32),
+                                              (tf.TensorShape([NUM_FRAMES, CROP_SIZE, CROP_SIZE, 3]),
+                                               tf.TensorShape([])))
 
 
 if __name__ == '__main__':
@@ -107,7 +110,7 @@ if __name__ == '__main__':
     
     NOTE: I created a videos_2.txt so I could test this out with a shorter dataset
     '''
-    BATCH_SIZE = 2
+    BATCH_SIZE = 1
     FEATURE_SHAPE = (NUM_FRAMES, CROP_SIZE, CROP_SIZE, 3)
 
     pipeline = Pipeline("../config/videos_2.txt")
@@ -125,22 +128,22 @@ if __name__ == '__main__':
     when we run the session.
     '''
 
-    iterator = iter(pipeline)
-    with tf.Graph().as_default():
-        features = tf.placeholder(tf.float32)
-        label = tf.placeholder(tf.int32)
-
-        sess = tf.Session()
-
-    while True:
-        try:
-            batch = [next(iterator) for _ in range(BATCH_SIZE)]
-            _f = np.array([item[0] for item in batch])
-            _l = np.array([item[1] for item in batch])
-            f_data, l_data = sess.run([features, label], {features: _f, label: _l})
-            print(f_data.shape, l_data)
-        except StopIteration:
-            break
+    # iterator = iter(pipeline)
+    # with tf.Graph().as_default():
+    #     features = tf.placeholder(tf.float32)
+    #     label = tf.placeholder(tf.int32)
+    #
+    #     sess = tf.Session()
+    #
+    # while True:
+    #     try:
+    #         batch = [next(iterator) for _ in range(BATCH_SIZE)]
+    #         _f = np.array([item[0] for item in batch])
+    #         _l = np.array([item[1] for item in batch])
+    #         f_data, l_data = sess.run([features, label], {features: _f, label: _l})
+    #         print(f_data.shape, l_data)
+    #     except StopIteration:
+    #         break
 
     ################################
     '''
@@ -157,14 +160,14 @@ if __name__ == '__main__':
     when it doesn't have any more left. The data API handles all this under the hood
     by itself. 
     '''
-    # dataset = pipeline.get_dataset()
-    # batched_ds = dataset.batch(BATCH_SIZE)
-    # features, label = batched_ds.make_one_shot_iterator().get_next()
-    #
-    # with tf.Session() as sess:
-    #     while True:
-    #         try:
-    #             f_data, l_data = sess.run([features, label])
-    #             print(f_data.shape, l_data)
-    #         except tf.errors.OutOfRangeError:
-    #             break
+    dataset = pipeline.get_dataset()
+    batched_ds = dataset.batch(BATCH_SIZE)
+    features, label = batched_ds.make_one_shot_iterator().get_next()
+
+    with tf.Session() as sess:
+        while True:
+            try:
+                f_data, l_data = sess.run([features, label])
+                print(f_data.shape, l_data)
+            except tf.errors.OutOfRangeError:
+                break
