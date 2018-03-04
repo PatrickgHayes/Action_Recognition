@@ -14,7 +14,7 @@ STRIDE = NUM_FRAMES
 DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
 CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
 DROPOUT_KEEP_PROB = 0.5
-MAX_ITER = 100000
+MAX_ITER = 10
 NUM_GPUS = 1
 
 TRAIN_DATA = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/train.txt"
@@ -28,10 +28,10 @@ CHECKPOINT_PATHS = {
 LR = 0.01
 TMPDIR = "./tmp"
 LOGDIR = "./log"
-THROUGH_PUT_ITER = 100
-VAL_ITER = 1000
-SAVE_ITER = 1000
-DISPLAY_ITER = 1000
+THROUGH_PUT_ITER = 5
+VAL_ITER = 2
+SAVE_ITER = 5
+DISPLAY_ITER = 2
 
 
 # build the model
@@ -104,9 +104,9 @@ if __name__ == '__main__':
     tower_losses = []
     tower_logits_labels = []
 
-    train_queue = train_pipeline.get_dataset().batch(1)
+    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(2).repeat(MAX_ITER)
+    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(2).repeat(MAX_ITER)
     # rgbs, labels = train_queue.make_one_shot_iterator().get_next()
-    # val_queue = val_pipeline.get_dataset().batch(1).make_one_shot_iterator()
 
     # train_queue = iter(train_pipeline)
     with tf.variable_scope(tf.get_variable_scope()):
@@ -128,7 +128,9 @@ if __name__ == '__main__':
         #                       shape=(1, NUM_FRAMES, CROP_SIZE, CROP_SIZE, 3))
 
         # labels = tf.placeholder(tf.int32)
-        rgbs, labels = train_queue.make_one_shot_iterator().get_next()
+        rgbs, labels = tf.cond(is_training, lambda: train_queue.make_one_shot_iterator().get_next(),
+                                      lambda: val_queue.make_one_shot_iterator().get_next())
+        # rgbs, labels = train_queue.make_one_shot_iterator().get_next()
         loss, logits = tower_inference(rgbs, labels)
         tf.get_variable_scope().reuse_variables()
         grads = opt.compute_gradients(loss)
@@ -164,7 +166,8 @@ if __name__ == '__main__':
             saver.restore(sess, ckpt.all_model_checkpoint_paths[-1])
         else:
             tf.logging.info('No checkpoint file found, restoring pretrained weights...')
-            rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb_imagenet'])
+            # rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb_imagenet'])
+            rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb'])
             tf.logging.info('Restore Complete.')
 
         # prefetch_threads = tf.train.start_queue_runners(sess=sess, coord=coord)
@@ -172,64 +175,68 @@ if __name__ == '__main__':
         summary_writer = tf.summary.FileWriter(LOGDIR, sess.graph)
         tf.logging.set_verbosity(tf.logging.INFO)
 
-        try:
-            it = 0
-            last_time = time.time()
-            last_step = 0
-            val_time = 0
-            while it < MAX_ITER:
-                _, loss_val = sess.run([train_op, avg_loss], {is_training: True})
+        it = 0
+        last_time = time.time()
+        last_step = 0
+        val_time = 0
+        for epoch in range(MAX_ITER):
+            while True:
+                print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
+                try:
+                    _, loss_val = sess.run([train_op, avg_loss], {is_training: True})
 
-                if it % DISPLAY_ITER == 0:
-                    tf.logging.info('step %d, loss = %.3f', it, loss_val)
-                    loss_summ = tf.Summary(value=[
-                        tf.Summary.Value(tag="train_loss", simple_value=loss_val)
-                    ])
-                    summary_writer.add_summary(loss_summ, it)
+                    if it % DISPLAY_ITER == 0:
+                        tf.logging.info('step %d, loss = %.3f', it, loss_val)
+                        loss_summ = tf.Summary(value=[
+                            tf.Summary.Value(tag="train_loss", simple_value=loss_val)
+                        ])
+                        summary_writer.add_summary(loss_summ, it)
 
-                if it % SAVE_ITER == 0 and it > 0:
-                    saver.save(sess, os.path.join(ckpt_path, 'model_ckpt'), it)
+                    if it % SAVE_ITER == 0 and it > 0:
+                        saver.save(sess, os.path.join(ckpt_path, 'model_ckpt'), it)
 
-                if it % VAL_ITER == 0 and it > 0:
-                    val_start = time.time()
-                    tf.logging.info('validating...')
-                    true_count = 0
-                    val_loss = 0
-                    for i in range(0, len(val_pipeline.videos), NUM_GPUS * BATCH_SIZE):
-                        c, l = sess.run([true_count_op, avg_loss], {is_training: False})
-                        true_count += c
-                        val_loss += l
-                    # add val accuracy to summary
-                    acc = true_count / len(val_pipeline.videos)
-                    tf.logging.info('val accuracy: %.3f', acc)
-                    acc_summ = tf.Summary(value=[
-                        tf.Summary.Value(tag="val_acc", simple_value=acc)
-                    ])
-                    summary_writer.add_summary(acc_summ, it)
-                    # add val loss to summary
-                    val_loss = val_loss / int(len(val_pipeline.videos) / NUM_GPUS / BATCH_SIZE)
-                    tf.logging.info('val loss: %.3f', val_loss)
-                    val_loss_summ = tf.Summary(value=[
-                        tf.Summary.Value(tag="val_loss", simple_value=val_loss)
-                    ])
-                    summary_writer.add_summary(val_loss_summ, it)
-                    val_time = time.time() - val_start
+                    if it % THROUGH_PUT_ITER == 0 and it > 0:
+                        duration = time.time() - last_time - val_time
+                        steps = it - last_step
+                        through_put = steps * NUM_GPUS * BATCH_SIZE / duration
+                        tf.logging.info('num examples/sec: %.2f', through_put)
+                        through_put_summ = tf.Summary(value=[
+                            tf.Summary.Value(tag="through_put", simple_value=through_put)
+                        ])
+                        summary_writer.add_summary(through_put_summ, it)
+                        last_time = time.time()
+                        last_step = it
+                        val_time = 0
 
-                if it % THROUGH_PUT_ITER == 0 and it > 0:
-                    duration = time.time() - last_time - val_time
-                    steps = it - last_step
-                    through_put = steps * NUM_GPUS * BATCH_SIZE / duration
-                    tf.logging.info('num examples/sec: %.2f', through_put)
-                    through_put_summ = tf.Summary(value=[
-                        tf.Summary.Value(tag="through_put", simple_value=through_put)
-                    ])
-                    summary_writer.add_summary(through_put_summ, it)
-                    last_time = time.time()
-                    last_step = it
-                    val_time = 0
+                    it += 1
+                except tf.errors.OutOfRangeError as e:
+                    break
 
-                it += 1
-        except (KeyboardInterrupt, tf.errors.OutOfRangeError) as e:
+            ### PERFORM VALIDATION
+
+            val_start = time.time()
+            tf.logging.info('validating...')
+            true_count = 0
+            val_loss = 0
+            for i in range(0, len(val_pipeline.videos), NUM_GPUS * BATCH_SIZE):
+                c, l = sess.run([true_count_op, avg_loss], {is_training: False})
+                true_count += c
+                val_loss += l
+            # add val accuracy to summary
+            acc = true_count / len(val_pipeline.videos)
+            tf.logging.info('val accuracy: %.3f', acc)
+            acc_summ = tf.Summary(value=[
+                tf.Summary.Value(tag="val_acc", simple_value=acc)
+            ])
+            summary_writer.add_summary(acc_summ, it)
+            # add val loss to summary
+            val_loss = val_loss / int(len(val_pipeline.videos) / NUM_GPUS / BATCH_SIZE)
+            tf.logging.info('val loss: %.3f', val_loss)
+            val_loss_summ = tf.Summary(value=[
+                tf.Summary.Value(tag="val_loss", simple_value=val_loss)
+            ])
+            summary_writer.add_summary(val_loss_summ, it)
+            val_time = time.time() - val_start
             saver.save(sess, os.path.join(ckpt_path, 'model_ckpt'), it)
 
         summary_writer.close()

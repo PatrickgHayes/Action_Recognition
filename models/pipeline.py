@@ -161,7 +161,7 @@ if __name__ == '__main__':
     by itself. 
     '''
     dataset = pipeline.get_dataset()
-    batched_ds = dataset.batch(BATCH_SIZE)
+    batched_ds = dataset.shuffle(buffer_size=2).batch(BATCH_SIZE).repeat(2)
     features, label = batched_ds.make_one_shot_iterator().get_next()
 
     with tf.Session() as sess:
