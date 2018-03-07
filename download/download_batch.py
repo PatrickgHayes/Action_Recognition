@@ -86,6 +86,9 @@ def download_clip(video_identifier, output_filename,
             break
 
     tmp_filename = glob.glob('%s*' % tmp_filename.split('.')[0])[0]
+    if tmp_filename.startswith('-'):
+	tmp_filename = './'+tmp_filename
+
     # Construct command to trim the videos (ffmpeg required).
     command = ['ffmpeg',
                '-i', '"%s"' % tmp_filename,
@@ -193,5 +196,5 @@ if __name__ == '__main__':
                          'filename of trimmed videos: '
                          'videoid_%0xd(start_time)_%0xd(end_time).mp4'))
     p.add_argument('-n', '--num-jobs', type=int, default=24)
-    p.add_argument('-t', '--tmp-dir', type=str, default='/tmp/kinetics')
+    p.add_argument('-t', '--tmp-dir', type=str, default='~/tmp/kinetics')
     main(**vars(p.parse_args()))
