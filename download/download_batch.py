@@ -75,19 +75,19 @@ def download_clip(video_identifier, output_filename,
     command = ' '.join(command)
     attempts = 0
     while True:
-         try:
+        try:
             output = subprocess.check_output(command, shell=True,
                                              stderr=subprocess.STDOUT)
-         except subprocess.CalledProcessError as err:
+        except subprocess.CalledProcessError as err:
             attempts += 1
             if attempts == num_attempts:
                 return status, err.output
-         else:
+        else:
             break
 
     tmp_filename = glob.glob('%s*' % tmp_filename.split('.')[0])[0]
     if tmp_filename.startswith('-'):
-	tmp_filename = './'+tmp_filename
+        tmp_filename = './' + tmp_filename
 
     # Construct command to trim the videos (ffmpeg required).
     command = ['ffmpeg',
@@ -99,7 +99,7 @@ def download_clip(video_identifier, output_filename,
                '-loglevel', 'panic',
                '"%s"' % tmp_filename]
     command = ' '.join(command)
-    
+
     try:
         output = subprocess.check_output(command, shell=True,
                                          stderr=subprocess.STDOUT)
@@ -155,7 +155,6 @@ def parse_kinetics_annotations(input_csv, start_count, end_count):
 
 
 def main(input_csv, output_dir, start_count=0, end_count=10, trim_format='%06d', num_jobs=24, tmp_dir='/tmp/kinetics'):
-
     # Reading and parsing Kinetics.
     dataset = parse_kinetics_annotations(input_csv, start_count, end_count)
 
@@ -163,7 +162,7 @@ def main(input_csv, output_dir, start_count=0, end_count=10, trim_format='%06d',
     label_to_dir = create_video_folders(dataset, output_dir, tmp_dir)
 
     # Download all clips.
-    if num_jobs==1:
+    if num_jobs == 1:
         status_lst = []
         for i, row in dataset.iterrows():
             status_lst.append(download_clip_wrapper(i, row, label_to_dir,
