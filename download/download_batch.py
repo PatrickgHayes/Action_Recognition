@@ -94,7 +94,7 @@ def download_clip(video_identifier, output_filename,
                '-c:', 'copy',
                '-threads', '1',
                '-loglevel', 'panic',
-               '"%s"' % output_filename]
+               '"%s"' % tmp_filename]
     command = ' '.join(command)
     
     try:
