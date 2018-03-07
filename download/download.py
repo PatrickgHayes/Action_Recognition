@@ -91,7 +91,7 @@ def download_clip(video_identifier, output_filename,
                '-i', '"%s"' % tmp_filename,
                '-ss', str(start_time),
                '-t', str(end_time - start_time),
-               '-c:v', 'libx264', '-c:a', 'copy',
+               '-c:', 'copy',
                '-threads', '1',
                '-loglevel', 'panic',
                '"%s"' % output_filename]
