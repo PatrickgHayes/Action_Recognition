@@ -85,7 +85,7 @@ def download_clip(video_identifier, output_filename,
          else:
             break
 
-    tmp_filename = glob.glob('%s*' % tmp_filename.split('.')[0])[0]
+    # tmp_filename = glob.glob('%s*' % tmp_filename.split('.')[0])[0]
     # Construct command to trim the videos (ffmpeg required).
     # command = ['ffmpeg',
     #            '-i', '"%s"' % tmp_filename,
