@@ -75,20 +75,17 @@ def download_clip(video_identifier, output_filename,
     command = ' '.join(command)
     attempts = 0
     while True:
-        try:
+         try:
             output = subprocess.check_output(command, shell=True,
                                              stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as err:
+         except subprocess.CalledProcessError as err:
             attempts += 1
             if attempts == num_attempts:
                 return status, err.output
-        else:
+         else:
             break
 
     tmp_filename = glob.glob('%s*' % tmp_filename.split('.')[0])[0]
-    if tmp_filename.startswith('-'):
-        tmp_filename = './' + tmp_filename
-
     # Construct command to trim the videos (ffmpeg required).
     command = ['ffmpeg',
                '-i', '"%s"' % tmp_filename,
@@ -99,7 +96,6 @@ def download_clip(video_identifier, output_filename,
                '-loglevel', 'panic',
                '"%s"' % output_filename]
     command = ' '.join(command)
-
     try:
         output = subprocess.check_output(command, shell=True,
                                          stderr=subprocess.STDOUT)
@@ -114,10 +110,11 @@ def download_clip(video_identifier, output_filename,
 
 def download_clip_wrapper(i, row, label_to_dir, trim_format, tmp_dir):
     """Wrapper for parallel processing purposes."""
-    if i % 25 == 0:
+    if i%25==0:
         print(i)
-        print("DOWNLOADING IN PROGRESS")
-    output_filename = construct_video_filename(row, label_to_dir, trim_format)
+        print('DOWNLOADING IN PROGRESS')
+    output_filename = construct_video_filename(row, label_to_dir,
+                                               trim_format)
     clip_id = os.path.basename(output_filename).split('.mp4')[0]
     if os.path.exists(output_filename):
         status = tuple([clip_id, True, 'Exists'])
