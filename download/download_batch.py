@@ -70,7 +70,7 @@ def download_clip(video_identifier, output_filename,
     command = ['youtube-dl',
                '--quiet', '--no-warnings',
                '-f', 'mp4',
-               '-o', '"%s"' % tmp_filename,
+               '-o', '"%s"' % output_filename,
                '"%s"' % (url_base + video_identifier)]
     command = ' '.join(command)
     attempts = 0
