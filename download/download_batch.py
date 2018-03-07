@@ -111,8 +111,8 @@ def download_clip(video_identifier, output_filename,
 def download_clip_wrapper(i, row, label_to_dir, trim_format, tmp_dir):
     """Wrapper for parallel processing purposes."""
     if i % 25 == 0:
-        print i
-        print "DOWNLOADING IN PROGRESS"
+        print(i)
+        print("DOWNLOADING IN PROGRESS")
     output_filename = construct_video_filename(row, label_to_dir, trim_format)
     clip_id = os.path.basename(output_filename).split('.mp4')[0]
     if os.path.exists(output_filename):
@@ -172,9 +172,9 @@ def main(input_csv, output_dir, start_count=0, end_count=10, trim_format='%06d',
     # Clean tmp dir.
     shutil.rmtree(tmp_dir)
 
-    # Save download report.
-    with open('download_report.json', 'w') as fobj:
-        fobj.write(json.dumps(status_lst))
+    # # Save download report.
+    # with open('download_report.json', 'w') as fobj:
+    #     fobj.write(json.dumps(status_lst))
 
 
 if __name__ == '__main__':
