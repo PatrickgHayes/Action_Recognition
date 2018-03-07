@@ -87,15 +87,15 @@ def download_clip(video_identifier, output_filename,
 
     tmp_filename = glob.glob('%s*' % tmp_filename.split('.')[0])[0]
     # Construct command to trim the videos (ffmpeg required).
-    command = ['ffmpeg',
-               '-i', '"%s"' % tmp_filename,
-               '-ss', str(start_time),
-               '-t', str(end_time - start_time),
-               '-c:v', 'libx264', '-c:a', 'copy',
-               '-threads', '1',
-               '-loglevel', 'panic',
-               '"%s"' % output_filename]
-    command = ' '.join(command)
+    # command = ['ffmpeg',
+    #            '-i', '"%s"' % tmp_filename,
+    #            '-ss', str(start_time),
+    #            '-t', str(end_time - start_time),
+    #            '-c:v', 'libx264', '-c:a', 'copy',
+    #            '-threads', '1',
+    #            '-loglevel', 'panic',
+    #            '"%s"' % output_filename]
+    # command = ' '.join(command)
     try:
         output = subprocess.check_output(command, shell=True,
                                          stderr=subprocess.STDOUT)
