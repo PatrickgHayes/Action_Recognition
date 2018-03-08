@@ -210,12 +210,10 @@ if __name__ == '__main__':
 
                     it += 1
 
-                    break
                 except tf.errors.OutOfRangeError as e:
                     break
 
             ### PERFORM VALIDATION
-            break
 
             val_start = time.time()
             tf.logging.info('validating...')
