@@ -3,24 +3,20 @@ import os, random
 import numpy as np
 from scipy import misc
 from datetime import datetime
+from config import *
 
 
 NUM_FRAMES = 64
 CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
-#DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
-VID_DIR = '/datasets/home/71/671/cs291dag/Action_Recognition/config/val.txt'
-#CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
-CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
-
-_DEBUG = True
-
 
 class Pipeline(object):
     def __init__(self, filepaths, cls_dict_fp):
         self._cls_fp = cls_dict_fp
         self.num_frames = NUM_FRAMES
+        self.batch_size = BATCH_SIZE
+        self.stride = FRAME_STRIDE
         self.videos = []
         self.stride = STRIDE
         self._build_cls_dict()

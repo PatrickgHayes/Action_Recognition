@@ -1,34 +1,28 @@
 import sys
 import os
 import time
-import s3d
 import i3d
 import tensorflow as tf
 from pipeline import Pipeline
 import numpy as np
-
+from config import *
 
 NUM_CLASSES = 5
 NUM_FRAMES = 64
 CROP_SIZE = 224
 BATCH_SIZE = 1
 STRIDE = NUM_FRAMES
-CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
 DROPOUT_KEEP_PROB = 0.5
 MAX_ITER = 10
-NUM_GPUS = 2
 
-NUM_VAL_VIDS = 357
+NUM_VAL_VIDS = 10
 
-TRAIN_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/train.txt"
-VAL_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/val.txt"
 
-'''
 CHECKPOINT_PATHS = {
     'rgb': './checkpoints/rgb_scratch/model.ckpt',
     'rgb_imagenet': './checkpoints/rgb_imagenet/model.ckpt',
 }
-'''
+
 
 LR = 0.01
 TMPDIR = "./tmp"
@@ -41,7 +35,7 @@ DISPLAY_ITER = 1
 # build the model
 def inference(rgb_inputs):
     with tf.variable_scope('RGB'):
-        rgb_model = s3d.InceptionI3d(
+        rgb_model = i3d.InceptionI3d(
             NUM_CLASSES, spatial_squeeze=True, final_endpoint='Logits')
         rgb_logits, _ = rgb_model(rgb_inputs, is_training=True, dropout_keep_prob=DROPOUT_KEEP_PROB)
     return rgb_logits
@@ -109,11 +103,11 @@ if __name__ == '__main__':
     tower_losses = []
     tower_logits_labels = []
 
-    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE)
+    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=10).batch(BATCH_SIZE)
     train_iterator = tf.contrib.data.Iterator.from_structure(train_queue.output_types, train_queue.output_shapes)
     train_init_op = train_iterator.make_initializer(train_queue)
 
-    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE)
+    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=10).batch(BATCH_SIZE)
     val_iterator = tf.contrib.data.Iterator.from_structure(val_queue.output_types, val_queue.output_shapes)
     val_init_op = val_iterator.make_initializer(val_queue)
 
@@ -155,14 +149,16 @@ if __name__ == '__main__':
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
-        # rgb_def_state = get_pretrained_save_state()
         ckpt = tf.train.get_checkpoint_state(ckpt_path)
         if ckpt and ckpt.model_checkpoint_path:
             tf.logging.info('Restoring from: %s', ckpt.model_checkpoint_path)
+            print('Restoring from: %s', ckpt.model_checkpoint_path)
             saver.restore(sess, ckpt.all_model_checkpoint_paths[-1])
         else:
             tf.logging.info('No checkpoint file found, restoring pretrained weights...')
-            # rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb_imagenet'])
+            print('No checkpoint file found, restoring pretrained weights...')
+            rgb_def_state = get_pretrained_save_state()
+            rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb'])
             # rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb'])
             # tf.logging.info('Restore Complete.')
 
@@ -176,6 +172,7 @@ if __name__ == '__main__':
         last_step = 0
         val_time = 0
         for epoch in range(MAX_ITER):
+            it = 0
             sess.run(train_init_op)
             while True:
                 print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
@@ -214,7 +211,6 @@ if __name__ == '__main__':
                     sys.exit(1)
 
             ### PERFORM VALIDATION
-
             sess.run(val_init_op)
             val_start = time.time()
             tf.logging.info('validating...')

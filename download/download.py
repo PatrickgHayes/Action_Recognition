@@ -174,7 +174,7 @@ def main(input_csv, output_dir,
 
     # Save download report.
     # with open('download_report.json', 'w') as fobj:
-    #     fobj.write(json.dumps(status_lst))
+    #     fobj.write(json.dumps(status_lst))s
 
 
 if __name__ == '__main__':

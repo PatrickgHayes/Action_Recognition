@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 FRAME_DATA_PATH = './videos.txt'
-DATA_DIR = '/Users/dewalgupta/Documents/ucsd/291d/activitynet/data/'
+DATA_DIR = '/home/phhayes/CSE291/Action_Recognition/data/Kinetics'
 NUM_GPUS = 1
 CROP_SIZE = 224
 NUM_CLASSES = 101
@@ -15,10 +15,10 @@ DROPOUT_KEEP_PROB = 0.5
 MAX_ITER = 100000
 
 CHECKPOINT_PATHS = {
-    'rgb': 'data/checkpoints/rgb_scratch/model.ckpt',
-    'flow': 'data/checkpoints/flow_scratch/model.ckpt',
-    'rgb_imagenet': 'data/checkpoints/rgb_imagenet/model.ckpt',
-    'flow_imagenet': 'data/checkpoints/flow_imagenet/model.ckpt',
+    'rgb': 'checkpoints/rgb_scratch/model.ckpt',
+    'flow': 'checkpoints/flow_scratch/model.ckpt',
+    'rgb_imagenet': 'checkpoints/rgb_imagenet/model.ckpt',
+    'flow_imagenet': 'checkpoints/flow_imagenet/model.ckpt',
 }
 
 LR = 0.01 # can change it to exponentially decay with global steps

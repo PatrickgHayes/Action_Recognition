@@ -10,7 +10,33 @@ dataset_dir = '/datasets/home/71/671/cs291dag/MiniKinetics/train/'
 ###
 
 
-def createJPGs(video, label_path):
+
+def resize_crop(img):
+    '''
+    resize the image frame to a random 224 by 224
+    '''
+
+    aspect_ratio = float(img.shape[1]) / float(img.shape[0])
+    new_w = 0
+    new_h = 0
+    if aspect_ratio <= 1.0:
+        new_w = 256
+        new_h = int(256 / aspect_ratio)
+    else:
+        new_h = 256
+        new_w = int(256 * aspect_ratio)
+
+    random.seed(datetime.now())
+    resize = misc.imresize(img, (new_h, new_w), 'bilinear')
+    wrange = resize.shape[1] - 224
+    hrange = resize.shape[0] - 224
+    w_crop = random.randint(0, wrange)
+    h_crop = random.randint(0, hrange)
+
+    return resize[h_crop:h_crop+224, w_crop:w_crop+224]
+
+
+def createJPGs(video, dest):
     '''
     creates the jpegs by calling the ffmpeg
     '''
@@ -30,7 +56,8 @@ def createJPGs(video, label_path):
         cwd='.'
     )
     out, err = proc.communicate()
-
+    print(out)
+    print(err)
 
 def main():
     '''
@@ -51,6 +78,7 @@ def main():
         files_list = glob.glob("*.mp4")
 
         Parallel(n_jobs=-1, verbose=True)(delayed(createJPGs)(video, label_path) for video in files_list)
+
 
         # for video in glob.glob("*.mp4"):
         #     print("\tprocessing video: " + video)
