@@ -48,6 +48,57 @@ class Unit3D(snt.AbstractModule):
     return net
 
 
+class SepConv(snt.AbstractModule):
+  """Basic unit containing Conv3D + BatchNorm + non-linearity."""
+
+  def __init__(self, output_channels,
+               kernel_shape=(1, 1, 1),
+               stride=(1, 1, 1),
+               activation_fn=tf.nn.relu,
+               use_batch_norm=True,
+               use_bias=False,
+               name='sep_conv'):
+    """Initializes SepConv module."""
+    super(SepConv, self).__init__(name=name)
+    self._output_channels = output_channels
+    self._sp_kernel_shape = [1]
+    self._sp_kernel_shape.extend(kernel_shape[1:])
+    self._temp_kernel_shape = kernel_shape[0]
+    self._temp_kernel_shape.extend([1,1])
+    self._stride = stride
+    self._use_batch_norm = use_batch_norm
+    self._activation_fn = activation_fn
+    self._use_bias = use_bias
+
+  def _build(self, inputs, is_training):
+    """Connects the module to inputs.
+
+    Args:
+      inputs: Inputs to the SepConv component.
+      is_training: whether to use training mode for snt.BatchNorm (boolean).
+
+    Returns:
+      Outputs from the module.
+    """
+
+    intermediate = snt.Conv3D(output_channels=self._output_channels,
+                     kernel_shape=self._sp_kernel_shape,
+                     stride=self._stride,
+                     padding=snt.SAME,
+                     use_bias=self._use_bias)(inputs)
+    net = snt.Conv3D(output_channels=self._output_channels,
+                     kernel_shape=self._temp_kernel_shape,
+                     stride=self._stride,
+                     padding=snt.SAME,
+                     use_bias=self._use_bias)(intermediate)
+    if self._use_batch_norm:
+      bn = snt.BatchNorm()
+      net = bn(net, is_training=is_training, test_local_stats=False)
+    if self._activation_fn is not None:
+      net = self._activation_fn(net)
+    return net
+
+
 class InceptionI3d(snt.AbstractModule):
   """Inception-v1 I3D architecture.
 
@@ -143,7 +194,7 @@ class InceptionI3d(snt.AbstractModule):
     net = inputs
     end_points = {}
     end_point = 'Conv3d_1a_7x7'
-    net = Unit3D(output_channels=64, kernel_shape=[7, 7, 7],
+    net = SepConv(output_channels=64, kernel_shape=[7, 7, 7],
                  stride=[2, 2, 2], name=end_point)(net, is_training=is_training)
     end_points[end_point] = net
     if self._final_endpoint == end_point: return net, end_points
@@ -158,7 +209,7 @@ class InceptionI3d(snt.AbstractModule):
     end_points[end_point] = net
     if self._final_endpoint == end_point: return net, end_points
     end_point = 'Conv3d_2c_3x3'
-    net = Unit3D(output_channels=192, kernel_shape=[3, 3, 3],
+    net = SepConv(output_channels=192, kernel_shape=[3, 3, 3],
                  name=end_point)(net, is_training=is_training)
     end_points[end_point] = net
     if self._final_endpoint == end_point: return net, end_points
@@ -176,13 +227,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=96, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=128, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=128, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=16, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=32, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=32, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -205,13 +256,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=192, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=192, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=32, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=96, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=96, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -239,13 +290,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=96, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=208, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=208, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=16, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=48, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=48, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -267,13 +318,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=112, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=224, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=224, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=24, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=64, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=64, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -295,13 +346,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=256, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=256, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=24, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=64, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=64, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -323,13 +374,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=144, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=288, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=288, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=32, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=64, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=64, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -351,13 +402,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=160, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=320, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=320, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=32, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=128, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=128, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -385,13 +436,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=160, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=320, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=320, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=32, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=128, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=128, kernel_shape=[3, 3, 3],
                           name='Conv3d_0a_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
@@ -413,13 +464,13 @@ class InceptionI3d(snt.AbstractModule):
       with tf.variable_scope('Branch_1'):
         branch_1 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_1 = Unit3D(output_channels=384, kernel_shape=[3, 3, 3],
+        branch_1 = SepConv(output_channels=384, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_1,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_2'):
         branch_2 = Unit3D(output_channels=48, kernel_shape=[1, 1, 1],
                           name='Conv3d_0a_1x1')(net, is_training=is_training)
-        branch_2 = Unit3D(output_channels=128, kernel_shape=[3, 3, 3],
+        branch_2 = SepConv(output_channels=128, kernel_shape=[3, 3, 3],
                           name='Conv3d_0b_3x3')(branch_2,
                                                 is_training=is_training)
       with tf.variable_scope('Branch_3'):
