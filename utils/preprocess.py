@@ -6,7 +6,7 @@ from tqdm import tqdm
 from joblib import Parallel, delayed
 
 ### GLOBALS
-dataset_dir = config.DATA_DIR
+dataset_dir = '/datasets/home/71/671/cs291dag/MiniKinetics/train/'
 ###
 
 
@@ -14,6 +14,7 @@ def createJPGs(video, label_path):
     '''
     creates the jpegs by calling the ffmpeg
     '''
+#    print('here: ' + video)
     dest_name = os.path.splitext(video)[0]
     if dest_name not in os.listdir():
         os.mkdir(dest_name)
@@ -44,12 +45,12 @@ def main():
         if label.startswith("."):
             continue
 
-        # print("===================== " + label + " ======================== ")
+        print("===================== " + label + " ======================== ")
         label_path = os.path.join(dataset_dir, label)
         os.chdir(label_path)
         files_list = glob.glob("*.mp4")
 
-        Parallel(n_jobs=-1, verbose=False)(delayed(createJPGs)(video, label_path) for video in files_list)
+        Parallel(n_jobs=-1, verbose=True)(delayed(createJPGs)(video, label_path) for video in files_list)
 
         # for video in glob.glob("*.mp4"):
         #     print("\tprocessing video: " + video)

@@ -14,7 +14,8 @@ CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognit
 
 
 class Pipeline(object):
-    def __init__(self, filepaths):
+    def __init__(self, filepaths, cls_dict_fp):
+        self._cls_fp = cls_dict_fp
         self.num_frames = NUM_FRAMES
         self.videos = []
         self._build_cls_dict()
@@ -26,7 +27,7 @@ class Pipeline(object):
 
     def _build_cls_dict(self):
         self.cls_dict = {}
-        with open(CLS_DICT_FP, 'r') as f:
+        with open(self._cls_fp, 'r') as f:
             for ind, line in enumerate(f.readlines()):
                 cls_name = line.strip()
                 self.cls_dict[cls_name.lower()] = int(ind)
@@ -113,7 +114,7 @@ if __name__ == '__main__':
     BATCH_SIZE = 1
     FEATURE_SHAPE = (NUM_FRAMES, CROP_SIZE, CROP_SIZE, 3)
 
-    pipeline = Pipeline("../config/videos_2.txt")
+    pipeline = Pipeline("../config/videos_2.txt", CLS_DICT_FP)
 
     ################################
     '''

@@ -12,25 +12,27 @@ NUM_FRAMES = 64
 CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
-CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
+CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
 DROPOUT_KEEP_PROB = 0.5
 MAX_ITER = 10
 NUM_GPUS = 2
 
-TRAIN_DATA = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/train.txt"
-VAL_DATA = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/val.txt"
+TRAIN_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/train.txt"
+VAL_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/val.txt"
 
+'''
 CHECKPOINT_PATHS = {
     'rgb': './checkpoints/rgb_scratch/model.ckpt',
     'rgb_imagenet': './checkpoints/rgb_imagenet/model.ckpt',
 }
+'''
 
 LR = 0.01
 TMPDIR = "./tmp"
 LOGDIR = "./log"
 THROUGH_PUT_ITER = 5
 SAVE_ITER = 5
-DISPLAY_ITER = 2
+DISPLAY_ITER = 1
 
 
 # build the model
@@ -92,8 +94,8 @@ def get_true_counts(tower_logits_labels):
 
 
 if __name__ == '__main__':
-    train_pipeline = Pipeline(TRAIN_DATA)
-    val_pipeline = Pipeline(VAL_DATA)
+    train_pipeline = Pipeline(TRAIN_DATA, CLS_DICT_FP)
+    val_pipeline = Pipeline(VAL_DATA, CLS_DICT_FP)
 
     is_training = tf.placeholder(tf.bool)
 
@@ -109,8 +111,8 @@ if __name__ == '__main__':
     with tf.variable_scope(tf.get_variable_scope()):
         for i in range(NUM_GPUS):
             with tf.name_scope('tower_%d' % i):
-                rgbs, labels = tf.cond(is_training, lambda: train_queue.get_next(),
-                                              lambda: val_queue.get_next())
+                rgbs, labels = tf.cond(is_training, lambda: train_queue.make_one_shot_iterator().get_next(),
+                                              lambda: val_queue.make_one_shot_iterator().get_next())
                 with tf.device('/gpu:%d' % i):
                     loss, logits = tower_inference(rgbs, labels)
                     tf.get_variable_scope().reuse_variables()
