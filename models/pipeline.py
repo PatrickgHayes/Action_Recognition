@@ -10,9 +10,9 @@ CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
 #DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
-VID_DIR = '/datasets/home/71/671/cs291dag/Action_Recognition/config/val.txt'
+VID_DIR = '../config/micro_kinetics_train.txt'
 #CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
-CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
+CLS_DICT_FP = "../config/label_map_micro_kinetics.txt"
 
 _DEBUG = True
 
