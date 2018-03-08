@@ -91,7 +91,7 @@ def download_clip(video_identifier, output_filename,
                '-i', '"%s"' % tmp_filename,
                '-ss', str(start_time),
                '-t', str(end_time - start_time),
-               '-c:v', 'libx264', '-c:a', 'copy',
+               # '-c:', 'copy',
                '-threads', '1',
                '-loglevel', 'panic',
                '"%s"' % output_filename]
@@ -109,6 +109,7 @@ def download_clip(video_identifier, output_filename,
 
 
 def download_clip_wrapper(row, label_to_dir, trim_format, tmp_dir):
+    print(row['video-id'])
     """Wrapper for parallel processing purposes."""
     output_filename = construct_video_filename(row, label_to_dir,
                                                trim_format)
@@ -160,10 +161,11 @@ def main(input_csv, output_dir,
     if num_jobs==1:
         status_lst = []
         for i, row in dataset.iterrows():
-            status_lst.append(download_clip_wrapper(row, label_to_dir,
-                                                    trim_format, tmp_dir))
+            download_clip_wrapper(row, label_to_dir, trim_format, tmp_dir)
+            # status_lst.append(download_clip_wrapper(row, label_to_dir,
+            #                                         trim_format, tmp_dir))
     else:
-        status_lst = Parallel(n_jobs=num_jobs)(delayed(download_clip_wrapper)(
+        Parallel(n_jobs=num_jobs)(delayed(download_clip_wrapper)(
             row, label_to_dir,
             trim_format, tmp_dir) for i, row in dataset.iterrows())
 
@@ -171,8 +173,8 @@ def main(input_csv, output_dir,
     shutil.rmtree(tmp_dir)
 
     # Save download report.
-    with open('download_report.json', 'w') as fobj:
-        fobj.write(json.dumps(status_lst))
+    # with open('download_report.json', 'w') as fobj:
+    #     fobj.write(json.dumps(status_lst))
 
 
 if __name__ == '__main__':
