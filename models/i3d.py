@@ -160,35 +160,55 @@ class InceptionI3d(snt.AbstractModule):
     Raises:
       ValueError: if `self._final_endpoint` is not recognized.
     """
+    _DEBUG = False
+    
     if self._final_endpoint not in self.VALID_ENDPOINTS:
       raise ValueError('Unknown final endpoint %s' % self._final_endpoint)
 
     net = inputs
+
+    if _DEBUG: print('INPUT : ' + str(net.get_shape()))
+
     end_points = {}
     end_point = 'Conv3d_1a_7x7'
     net = Unit3D(output_channels=64, kernel_shape=[7, 7, 7],
                  stride=[2, 2, 2], name=end_point)(net, is_training=is_training)
     end_points[end_point] = net
+    
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
     end_point = 'MaxPool3d_2a_3x3'
     net = tf.nn.max_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
     end_point = 'Conv3d_2b_1x1'
     net = Unit3D(output_channels=64, kernel_shape=[1, 1, 1],
                  name=end_point)(net, is_training=is_training)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
     end_point = 'Conv3d_2c_3x3'
     net = Unit3D(output_channels=192, kernel_shape=[3, 3, 3],
                  name=end_point)(net, is_training=is_training)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
     end_point = 'MaxPool3d_3a_3x3'
     net = tf.nn.max_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_3b'
@@ -218,6 +238,9 @@ class InceptionI3d(snt.AbstractModule):
 
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_3c'
@@ -246,12 +269,18 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'MaxPool3d_4a_3x3'
     net = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_4b'
@@ -280,6 +309,9 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+     
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+    
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_4c'
@@ -308,6 +340,9 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_4d'
@@ -336,6 +371,9 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_4e'
@@ -364,6 +402,9 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_4f'
@@ -392,12 +433,18 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'MaxPool3d_5a_2x2'
     net = tf.nn.max_pool3d(net, ksize=[1, 2, 2, 2, 1], strides=[1, 2, 2, 2, 1],
                            padding=snt.SAME, name=end_point)
     end_points[end_point] = net
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_5b'
@@ -426,6 +473,9 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Mixed_5c'
@@ -454,6 +504,9 @@ class InceptionI3d(snt.AbstractModule):
                                                 is_training=is_training)
       net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
     end_points[end_point] = net
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return net, end_points
 
     end_point = 'Logits'
@@ -471,6 +524,9 @@ class InceptionI3d(snt.AbstractModule):
         logits = tf.squeeze(logits, [2, 3], name='SpatialSqueeze')
     averaged_logits = tf.reduce_mean(logits, axis=1)
     end_points[end_point] = averaged_logits
+
+    if _DEBUG: print(end_point + ' : ' + str(net.get_shape()))
+
     if self._final_endpoint == end_point: return averaged_logits, end_points
 
     end_point = 'Predictions'
