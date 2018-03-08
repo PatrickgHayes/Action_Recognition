@@ -106,37 +106,28 @@ if __name__ == '__main__':
 
     train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(1).repeat(MAX_ITER)
     val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(1).repeat(MAX_ITER)
-    # rgbs, labels = train_queue.make_one_shot_iterator().get_next()
 
-    # train_queue = iter(train_pipeline)
     with tf.variable_scope(tf.get_variable_scope()):
-        # for i in range(NUM_GPUS):
-        #     with tf.name_scope('tower_%d' % i):
-        #         rgbs, labels = tf.cond(is_training, lambda: train_queue.get_next(),
-        #                                       lambda: val_queue.get_next())
-        #         with tf.device('/gpu:%d' % i):
-        #             loss, logits = tower_inference(rgbs, labels)
-        #             tf.get_variable_scope().reuse_variables()
-        #             grads = opt.compute_gradients(loss)
-        #             tower_grads.append(grads)
-        #             tower_losses.append(loss)
-        #             tower_logits_labels.append((logits, labels))
+        for i in range(NUM_GPUS):
+            with tf.name_scope('tower_%d' % i):
+                rgbs, labels = tf.cond(is_training, lambda: train_queue.get_next(),
+                                              lambda: val_queue.get_next())
+                with tf.device('/gpu:%d' % i):
+                    loss, logits = tower_inference(rgbs, labels)
+                    tf.get_variable_scope().reuse_variables()
+                    grads = opt.compute_gradients(loss)
+                    tower_grads.append(grads)
+                    tower_losses.append(loss)
+                    tower_logits_labels.append((logits, labels))
 
-        # rgbs, labels = tf.cond(is_training, lambda: train_queue.get_next(),
-        #                                       lambda: val_queue.get_next())
-        # rgbs = tf.placeholder(tf.float32,
-        #                       shape=(1, NUM_FRAMES, CROP_SIZE, CROP_SIZE, 3))
-
-        # labels = tf.placeholder(tf.int32)
-        rgbs, labels = tf.cond(is_training, lambda: train_queue.make_one_shot_iterator().get_next(),
-                                      lambda: val_queue.make_one_shot_iterator().get_next())
-        # rgbs, labels = train_queue.make_one_shot_iterator().get_next()
-        loss, logits = tower_inference(rgbs, labels)
-        tf.get_variable_scope().reuse_variables()
-        grads = opt.compute_gradients(loss)
-        tower_grads.append(grads)
-        tower_losses.append(loss)
-        tower_logits_labels.append((logits, labels))
+        # rgbs, labels = tf.cond(is_training, lambda: train_queue.make_one_shot_iterator().get_next(),
+        #                               lambda: val_queue.make_one_shot_iterator().get_next())
+        # loss, logits = tower_inference(rgbs, labels)
+        # tf.get_variable_scope().reuse_variables()
+        # grads = opt.compute_gradients(loss)
+        # tower_grads.append(grads)
+        # tower_losses.append(loss)
+        # tower_logits_labels.append((logits, labels))
 
     true_count_op = get_true_counts(tower_logits_labels)
     avg_loss = tf.reduce_mean(tower_losses)
@@ -153,11 +144,6 @@ if __name__ == '__main__':
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        # batch = [next(train_queue) for _ in range(1)]
-        # _f = np.array([item[0] for item in batch])
-        # _l = np.array([item[1] for item in batch])
-        # print(sess.run([loss], {rgbs: _f, labels: _l, is_training: False}))
-        # print(sess.run([rgbs], {is_training: False})[0].shape)
 
         # rgb_def_state = get_pretrained_save_state()
         ckpt = tf.train.get_checkpoint_state(ckpt_path)
@@ -210,12 +196,10 @@ if __name__ == '__main__':
 
                     it += 1
 
-                    break
                 except tf.errors.OutOfRangeError as e:
                     break
 
             ### PERFORM VALIDATION
-            break
 
             val_start = time.time()
             tf.logging.info('validating...')
