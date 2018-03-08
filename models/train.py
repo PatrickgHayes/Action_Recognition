@@ -15,7 +15,7 @@ STRIDE = NUM_FRAMES
 CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
 DROPOUT_KEEP_PROB = 0.5
 MAX_ITER = 10
-NUM_GPUS = 1
+NUM_GPUS = 2
 
 TRAIN_DATA = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/train.txt"
 VAL_DATA = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/val.txt"
@@ -29,7 +29,6 @@ LR = 0.01
 TMPDIR = "./tmp"
 LOGDIR = "./log"
 THROUGH_PUT_ITER = 5
-VAL_ITER = 2
 SAVE_ITER = 5
 DISPLAY_ITER = 2
 
@@ -167,7 +166,7 @@ if __name__ == '__main__':
         val_time = 0
         for epoch in range(MAX_ITER):
             while True:
-                print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
+                # print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
                 try:
                     _, loss_val = sess.run([train_op, avg_loss], {is_training: True})
 

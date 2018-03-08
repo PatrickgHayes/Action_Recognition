@@ -1,50 +1,27 @@
 import os
 import glob
-import random
-import tempfile
 import subprocess
 import config
-import numpy as np
-from scipy import misc
-from datetime import datetime
-
+from tqdm import tqdm
+from joblib import Parallel, delayed
 
 ### GLOBALS
 dataset_dir = config.DATA_DIR
 ###
 
 
-def resize_crop(img: np.ndarray) -> np.ndarray:
-    '''
-    resize the image frame to a random 224 by 224
-    '''
-
-    aspect_ratio = float(img.shape[1]) / float(img.shape[0])
-    new_w = 0
-    new_h = 0
-    if aspect_ratio <= 1.0:
-        new_w = 256
-        new_h = int(256 / aspect_ratio)
-    else:
-        new_h = 256
-        new_w = int(256 * aspect_ratio)
-
-    random.seed(datetime.now())
-    resize = misc.imresize(img, (new_h, new_w), 'bilinear')
-    wrange = resize.shape[1] - 224
-    hrange = resize.shape[0] - 224
-    w_crop = random.randint(0, wrange)
-    h_crop = random.randint(0, hrange)
-
-    return resize[h_crop:h_crop+224, w_crop:w_crop+224]
-
-
-def createJPGs(video, dest):
+def createJPGs(video, label_path):
     '''
     creates the jpegs by calling the ffmpeg
     '''
+    dest_name = os.path.splitext(video)[0]
+    if dest_name not in os.listdir():
+        os.mkdir(dest_name)
+    video_path = os.path.join(label_path, video)
+    dest_name = os.path.join(dest_name, "img%4d.jpg")
+
     video = str(video).replace(' ', '\ ')
-    dest = str(dest).replace(' ', '\ ')
+    dest = str(dest_name).replace(' ', '\ ')
     command = "ffmpeg -i " + video + " -r 25.0 " + dest
     proc = subprocess.Popen(
         command,
@@ -52,8 +29,6 @@ def createJPGs(video, dest):
         cwd='.'
     )
     out, err = proc.communicate()
-    # print(out)
-    # print(err)
 
 
 def main():
@@ -65,37 +40,25 @@ def main():
     4. change pixel values to be [-1, 1]
     '''
     os.chdir(dataset_dir)
-    for label in os.listdir():
+    for label in tqdm(os.listdir()):
         if label.startswith("."):
             continue
 
-        print("===================== " + label + " ======================== ")
+        # print("===================== " + label + " ======================== ")
         label_path = os.path.join(dataset_dir, label)
         os.chdir(label_path)
-        for video in glob.glob("*.mp4"):
-            print("\tprocessing video: " + video)
-            # l = list()
-            dest_name = os.path.splitext(video)[0]
-            if dest_name not in os.listdir():
-                os.mkdir(dest_name)
-            video_path = os.path.join(label_path, video)
-            dest_name = os.path.join(dest_name, "img%4d.jpg")
-            createJPGs(video_path, dest_name)
-            # with tempfile.TemporaryDirectory() as dirpath:
-            #     os.chdir(dirpath)
-            #     video_path = os.path.join(label_path, video)
-            #     createJPGs(video_path, "img%4d.jpg")
-            #     for img in glob.glob("*.jpg"):
-            #         npimg = misc.imread(img)
-            #         cropped = resize_crop(npimg)
-            #         scaled = 2*(cropped/255) - 1
-            #         l.append(scaled)
-            #
-            #     npy = np.array(l)
-            #     save_fn = os.path.join(dataset_dir, label, os.path.splitext(video)[0])
-            #     np.save(save_fn, npy)
-            #     print("\tsaved video with shape: " + str(npy.shape))
+        files_list = glob.glob("*.mp4")
 
+        Parallel(n_jobs=-1, verbose=False)(delayed(createJPGs)(video, label_path) for video in files_list)
+
+        # for video in glob.glob("*.mp4"):
+        #     print("\tprocessing video: " + video)
+        #     dest_name = os.path.splitext(video)[0]
+        #     if dest_name not in os.listdir():
+        #         os.mkdir(dest_name)
+        #     video_path = os.path.join(label_path, video)
+        #     dest_name = os.path.join(dest_name, "img%4d.jpg")
+        #     createJPGs(video_path, dest_name)
 
 if __name__ == '__main__':
     main()
