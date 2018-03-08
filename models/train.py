@@ -1,5 +1,6 @@
 import os
 import time
+import s3d
 import i3d
 import tensorflow as tf
 from pipeline import Pipeline
@@ -11,7 +12,6 @@ NUM_FRAMES = 64
 CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
-DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
 CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
 DROPOUT_KEEP_PROB = 0.5
 MAX_ITER = 10
@@ -37,7 +37,7 @@ DISPLAY_ITER = 2
 # build the model
 def inference(rgb_inputs):
     with tf.variable_scope('RGB'):
-        rgb_model = i3d.InceptionI3d(
+        rgb_model = s3d.InceptionI3d(
             NUM_CLASSES, spatial_squeeze=True, final_endpoint='Logits')
         rgb_logits, _ = rgb_model(rgb_inputs, is_training=True, dropout_keep_prob=DROPOUT_KEEP_PROB)
     return rgb_logits
@@ -104,8 +104,8 @@ if __name__ == '__main__':
     tower_losses = []
     tower_logits_labels = []
 
-    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(2).repeat(MAX_ITER)
-    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(2).repeat(MAX_ITER)
+    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(1).repeat(MAX_ITER)
+    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(1).repeat(MAX_ITER)
     # rgbs, labels = train_queue.make_one_shot_iterator().get_next()
 
     # train_queue = iter(train_pipeline)
@@ -159,7 +159,7 @@ if __name__ == '__main__':
         # print(sess.run([loss], {rgbs: _f, labels: _l, is_training: False}))
         # print(sess.run([rgbs], {is_training: False})[0].shape)
 
-        rgb_def_state = get_pretrained_save_state()
+        # rgb_def_state = get_pretrained_save_state()
         ckpt = tf.train.get_checkpoint_state(ckpt_path)
         if ckpt and ckpt.model_checkpoint_path:
             tf.logging.info('Restoring from: %s', ckpt.model_checkpoint_path)
@@ -167,8 +167,8 @@ if __name__ == '__main__':
         else:
             tf.logging.info('No checkpoint file found, restoring pretrained weights...')
             # rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb_imagenet'])
-            rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb'])
-            tf.logging.info('Restore Complete.')
+            # rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb'])
+            # tf.logging.info('Restore Complete.')
 
         # prefetch_threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
@@ -209,10 +209,13 @@ if __name__ == '__main__':
                         val_time = 0
 
                     it += 1
+
+                    break
                 except tf.errors.OutOfRangeError as e:
                     break
 
             ### PERFORM VALIDATION
+            break
 
             val_start = time.time()
             tf.logging.info('validating...')
