@@ -9,8 +9,12 @@ NUM_FRAMES = 64
 CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
-DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
-CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
+#DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
+VID_DIR = '/datasets/home/71/671/cs291dag/Action_Recognition/config/val.txt'
+#CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
+CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
+
+_DEBUG = True
 
 
 class Pipeline(object):
@@ -35,13 +39,16 @@ class Pipeline(object):
 
     def __iter__(self):
         for video_fp in self.videos:
+            if _DEBUG: print('attempting: ' + video_fp)
             rgb, label = self._parse(video_fp)
             #         print(label)
+            if _DEBUG: print('finished  : ' + video_fp)
             yield (rgb, label)
 
     def get_frames(self, video_path):
         # np.random.shuffle(videos)  # random shuffle every epoch
         video_path = video_path.strip()
+        if _DEBUG: print(video_path)
         paths = os.path.split(video_path)
         cls_name = os.path.split(paths[0])[1]
 
@@ -52,12 +59,14 @@ class Pipeline(object):
         else:
             begin = 0
             ori_len = len(imgs)
+            if _DEBUG: print('entering while loop')
             while len(imgs) < self.num_frames:
                 for i in range(0, ori_len, self.stride):
                     imgs.append(imgs[i])
                     if len(imgs) == self.num_frames:
                         break
 
+            if _DEBUG: print('exiting while loop')
         imgs_out = imgs[begin:begin + self.num_frames]
         return imgs_out, self.cls_dict[cls_name.lower()]
 
@@ -115,7 +124,7 @@ if __name__ == '__main__':
     BATCH_SIZE = 1
     FEATURE_SHAPE = (NUM_FRAMES, CROP_SIZE, CROP_SIZE, 3)
 
-    pipeline = Pipeline("../config/videos_2.txt", CLS_DICT_FP)
+    pipeline = Pipeline(VID_DIR, CLS_DICT_FP)
 
     ################################
     '''
@@ -174,7 +183,7 @@ if __name__ == '__main__':
     #         except tf.errors.OutOfRangeError:
     #             break
 
-    dataset = pipeline.get_dataset().shuffle(buffer_size=2).batch(2)
+    dataset = pipeline.get_dataset().shuffle(buffer_size=2).batch(15)
     iterator = tf.contrib.data.Iterator.from_structure(dataset.output_types, dataset.output_shapes)
     init_op = iterator.make_initializer(dataset)
     # features, label = batched_ds.make_one_shot_iterator().get_next()
