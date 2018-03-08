@@ -32,7 +32,7 @@ CHECKPOINT_PATHS = {
 LR = 0.01
 TMPDIR = "./tmp"
 LOGDIR = "./log"
-THROUGH_PUT_ITER = 5
+# THROUGH_PUT_ITER = 5
 SAVE_ITER = 5
 DISPLAY_ITER = 1
 
@@ -108,7 +108,10 @@ if __name__ == '__main__':
     tower_losses = []
     tower_logits_labels = []
 
-    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE).repeat(MAX_ITER)
+    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE)
+    train_iterator = tf.contrib.data.Iterator.from_structure(train_queue.output_types, train_queue.output_shapes)
+    train_init_op = train_iterator.make_initializer(train_queue)
+
     val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE)
     val_iterator = tf.contrib.data.Iterator.from_structure(val_queue.output_types, val_queue.output_shapes)
     val_init_op = val_iterator.make_initializer(val_queue)
@@ -116,7 +119,7 @@ if __name__ == '__main__':
     with tf.variable_scope(tf.get_variable_scope()):
         for i in range(NUM_GPUS):
             with tf.name_scope('tower_%d' % i):
-                rgbs, labels = tf.cond(is_training, lambda: train_queue.make_one_shot_iterator().get_next(),
+                rgbs, labels = tf.cond(is_training, lambda: train_queue.get_next(),
                                               lambda: val_iterator.get_next())
                 with tf.device('/gpu:%d' % i):
                     loss, logits = tower_inference(rgbs, labels)
@@ -172,8 +175,9 @@ if __name__ == '__main__':
         last_step = 0
         val_time = 0
         for epoch in range(MAX_ITER):
+            sess.run(train_init_op)
             while True:
-                # print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
+                print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
                 try:
                     _, loss_val = sess.run([train_op, avg_loss], {is_training: True})
 
@@ -187,23 +191,25 @@ if __name__ == '__main__':
                     if it % SAVE_ITER == 0 and it > 0:
                         saver.save(sess, os.path.join(ckpt_path, 'model_ckpt'), it)
 
-                    if it % THROUGH_PUT_ITER == 0 and it > 0:
-                        duration = time.time() - last_time - val_time
-                        steps = it - last_step
-                        through_put = steps * NUM_GPUS * BATCH_SIZE / duration
-                        tf.logging.info('num examples/sec: %.2f', through_put)
-                        through_put_summ = tf.Summary(value=[
-                            tf.Summary.Value(tag="through_put", simple_value=through_put)
-                        ])
-                        summary_writer.add_summary(through_put_summ, it)
-                        last_time = time.time()
-                        last_step = it
-                        val_time = 0
+                    # if it % THROUGH_PUT_ITER == 0 and it > 0:
+                    #     duration = time.time() - last_time - val_time
+                    #     steps = it - last_step
+                    #     through_put = steps * NUM_GPUS * BATCH_SIZE / duration
+                    #     tf.logging.info('num examples/sec: %.2f', through_put)
+                    #     through_put_summ = tf.Summary(value=[
+                    #         tf.Summary.Value(tag="through_put", simple_value=through_put)
+                    #     ])
+                    #     summary_writer.add_summary(through_put_summ, it)
+                    #     last_time = time.time()
+                    #     last_step = it
+                    #     val_time = 0
 
                     it += 1
 
                 except tf.errors.OutOfRangeError as e:
                     break
+                except Exception as e:
+                    print(e)
 
             ### PERFORM VALIDATION
 

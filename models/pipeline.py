@@ -18,6 +18,7 @@ class Pipeline(object):
         self._cls_fp = cls_dict_fp
         self.num_frames = NUM_FRAMES
         self.videos = []
+        self.stride = STRIDE
         self._build_cls_dict()
         with open(filepaths, 'r') as f:
             for path in f.readlines():
@@ -161,11 +162,34 @@ if __name__ == '__main__':
     when it doesn't have any more left. The data API handles all this under the hood
     by itself. 
     '''
-    dataset = pipeline.get_dataset()
-    batched_ds = dataset.shuffle(buffer_size=2).batch(BATCH_SIZE).repeat(2)
-    features, label = batched_ds.make_one_shot_iterator().get_next()
+    # dataset = pipeline.get_dataset()
+    # batched_ds = dataset.shuffle(buffer_size=2).batch(BATCH_SIZE).repeat(2)
+    # features, label = batched_ds.make_one_shot_iterator().get_next()
+    #
+    # with tf.Session() as sess:
+    #     while True:
+    #         try:
+    #             f_data, l_data = sess.run([features, label])
+    #             print(f_data.shape, l_data)
+    #         except tf.errors.OutOfRangeError:
+    #             break
+
+    dataset = pipeline.get_dataset().shuffle(buffer_size=2).batch(2)
+    iterator = tf.contrib.data.Iterator.from_structure(dataset.output_types, dataset.output_shapes)
+    init_op = iterator.make_initializer(dataset)
+    # features, label = batched_ds.make_one_shot_iterator().get_next()
+    features, label = iterator.get_next()
 
     with tf.Session() as sess:
+        sess.run(init_op)
+        while True:
+            try:
+                f_data, l_data = sess.run([features, label])
+                print(f_data.shape, l_data)
+            except tf.errors.OutOfRangeError:
+                break
+
+        sess.run(init_op)
         while True:
             try:
                 f_data, l_data = sess.run([features, label])
