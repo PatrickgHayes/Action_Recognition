@@ -16,8 +16,16 @@ def createJPGs(video, label_path):
     '''
 #    print('here: ' + video)
     dest_name = os.path.splitext(video)[0]
+    if dest_name.startswith('-'):
+        dest_name = dest_name[1:]
+
     if dest_name not in os.listdir():
         os.mkdir(dest_name)
+
+    if len(os.listdir(dest_name)) != 0:
+        return
+
+    print('adding ' + video)
     video_path = os.path.join(label_path, video)
     dest_name = os.path.join(dest_name, "img%4d.jpg")
 
