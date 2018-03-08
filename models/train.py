@@ -64,6 +64,7 @@ def tower_inference(rgb_inputs, labels):
 
 
 def average_gradients(tower_grads):
+
     average_grads = []
     for grad_and_vars in zip(*tower_grads):
         # Note that each grad_and_vars looks like the following:
@@ -106,13 +107,15 @@ if __name__ == '__main__':
     tower_logits_labels = []
 
     train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(1).repeat(MAX_ITER)
-    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(1).repeat(MAX_ITER)
+    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(1)
+    val_iterator = tf.contrib.data.Iterator.from_structure(val_queue.output_types, val_queue.output_shapes)
+    val_init_op = val_iterator.make_initializer(val_queue)
 
     with tf.variable_scope(tf.get_variable_scope()):
         for i in range(NUM_GPUS):
             with tf.name_scope('tower_%d' % i):
                 rgbs, labels = tf.cond(is_training, lambda: train_queue.make_one_shot_iterator().get_next(),
-                                              lambda: val_queue.make_one_shot_iterator().get_next())
+                                              lambda: val_iterator.get_next())
                 with tf.device('/gpu:%d' % i):
                     loss, logits = tower_inference(rgbs, labels)
                     tf.get_variable_scope().reuse_variables()
@@ -202,14 +205,18 @@ if __name__ == '__main__':
 
             ### PERFORM VALIDATION
 
+            sess.run(val_init_op)
             val_start = time.time()
             tf.logging.info('validating...')
             true_count = 0
             val_loss = 0
-            for i in range(0, len(val_pipeline.videos), NUM_GPUS * BATCH_SIZE):
-                c, l = sess.run([true_count_op, avg_loss], {is_training: False})
-                true_count += c
-                val_loss += l
+            while True:
+                try:
+                    c, l = sess.run([true_count_op, avg_loss], {is_training: False})
+                    true_count += c
+                    val_loss += l
+                except tf.errors.OutOfRangeError as e:
+                    break
             # add val accuracy to summary
             acc = true_count / len(val_pipeline.videos)
             tf.logging.info('val accuracy: %.3f', acc)
