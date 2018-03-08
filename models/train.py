@@ -10,12 +10,14 @@ import numpy as np
 NUM_CLASSES = 5
 NUM_FRAMES = 64
 CROP_SIZE = 224
-BATCH_SIZE = 3
+BATCH_SIZE = 1
 STRIDE = NUM_FRAMES
 CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
 DROPOUT_KEEP_PROB = 0.5
 MAX_ITER = 10
 NUM_GPUS = 2
+
+NUM_VAL_VIDS = 357
 
 TRAIN_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/train.txt"
 VAL_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/val.txt"
@@ -106,8 +108,8 @@ if __name__ == '__main__':
     tower_losses = []
     tower_logits_labels = []
 
-    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(1).repeat(MAX_ITER)
-    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(1)
+    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE).repeat(MAX_ITER)
+    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE)
     val_iterator = tf.contrib.data.Iterator.from_structure(val_queue.output_types, val_queue.output_shapes)
     val_init_op = val_iterator.make_initializer(val_queue)
 
@@ -218,14 +220,14 @@ if __name__ == '__main__':
                 except tf.errors.OutOfRangeError as e:
                     break
             # add val accuracy to summary
-            acc = true_count / len(val_pipeline.videos)
+            acc = true_count / NUM_VAL_VIDS
             tf.logging.info('val accuracy: %.3f', acc)
             acc_summ = tf.Summary(value=[
                 tf.Summary.Value(tag="val_acc", simple_value=acc)
             ])
             summary_writer.add_summary(acc_summ, it)
             # add val loss to summary
-            val_loss = val_loss / int(len(val_pipeline.videos) / NUM_GPUS / BATCH_SIZE)
+            val_loss = val_loss / int(NUM_VAL_VIDS / NUM_GPUS / BATCH_SIZE)
             tf.logging.info('val loss: %.3f', val_loss)
             val_loss_summ = tf.Summary(value=[
                 tf.Summary.Value(tag="val_loss", simple_value=val_loss)
