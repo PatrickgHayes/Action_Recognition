@@ -1,3 +1,4 @@
+import sys
 import os
 import time
 import s3d
@@ -119,7 +120,7 @@ if __name__ == '__main__':
     with tf.variable_scope(tf.get_variable_scope()):
         for i in range(NUM_GPUS):
             with tf.name_scope('tower_%d' % i):
-                rgbs, labels = tf.cond(is_training, lambda: train_queue.get_next(),
+                rgbs, labels = tf.cond(is_training, lambda: train_iterator.get_next(),
                                               lambda: val_iterator.get_next())
                 with tf.device('/gpu:%d' % i):
                     loss, logits = tower_inference(rgbs, labels)
@@ -210,6 +211,7 @@ if __name__ == '__main__':
                     break
                 except Exception as e:
                     print(e)
+                    sys.exit(1)
 
             ### PERFORM VALIDATION
 
