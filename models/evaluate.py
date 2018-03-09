@@ -75,6 +75,7 @@ def evaluate(input_file=VAL_DATA, ckpt_dir="./tmp/ckpt", top_k=None):
                 print('eval accuracy: %.3f' % (true_count / len(pipeline.videos)))
 
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input_file')
@@ -83,3 +84,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     #evaluate(args.input_file, args.ckpt_dir, args.top_k)
     evaluate()
+
