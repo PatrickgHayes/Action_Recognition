@@ -101,6 +101,7 @@ def get_true_counts(tower_logits_labels):
 if __name__ == '__main__':
     train_pipeline = Pipeline(TRAIN_DATA, CLS_DICT_FP)
     val_pipeline = Pipeline(VAL_DATA, CLS_DICT_FP)
+    NUM_VAL_VIDS = val_pipeline.getNumVids()
 
     is_training = tf.placeholder(tf.bool)
 
@@ -179,7 +180,7 @@ if __name__ == '__main__':
         for epoch in range(MAX_ITER):
             sess.run(train_init_op)
             while True:
-                print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
+                # print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
                 try:
                     _, loss_val = sess.run([train_op, avg_loss], {is_training: True})
 

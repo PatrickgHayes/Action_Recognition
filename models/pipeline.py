@@ -14,7 +14,7 @@ VID_DIR = '../config/micro_kinetics_train.txt'
 #CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
 CLS_DICT_FP = "../config/label_map_micro_kinetics.txt"
 
-_DEBUG = True
+_DEBUG = False
 
 
 class Pipeline(object):
@@ -36,6 +36,9 @@ class Pipeline(object):
             for ind, line in enumerate(f.readlines()):
                 cls_name = line.strip()
                 self.cls_dict[cls_name.lower()] = int(ind)
+
+    def getNumVids(self):
+        return len(self.videos)
 
     def __iter__(self):
         for video_fp in self.videos:
