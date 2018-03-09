@@ -8,13 +8,13 @@ from pipeline import Pipeline
 import numpy as np
 
 
-NUM_CLASSES = 5
+NUM_CLASSES = 15
 NUM_FRAMES = 64
 CROP_SIZE = 224
-BATCH_SIZE = 1
+BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
 CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
-DROPOUT_KEEP_PROB = 0.5
+DROPOUT_KEEP_PROB = 0.2
 MAX_ITER = 10
 NUM_GPUS = 2
 
@@ -35,7 +35,8 @@ TMPDIR = "./tmp"
 LOGDIR = "./log"
 # THROUGH_PUT_ITER = 5
 SAVE_ITER = 5
-DISPLAY_ITER = 1
+VAL_ITER = 10
+DISPLAY_ITER = 2
 
 
 # build the model
@@ -192,6 +193,37 @@ if __name__ == '__main__':
                     if it % SAVE_ITER == 0 and it > 0:
                         saver.save(sess, os.path.join(ckpt_path, 'model_ckpt'), it)
 
+                    ### PERFORM VALIDATION
+                    if it % VAL_ITER == 0 and it > 0:
+                        sess.run(val_init_op)
+                        val_start = time.time()
+                        tf.logging.info('validating...')
+                        true_count = 0
+                        val_loss = 0
+                        while True:
+                            try:
+                                c, l = sess.run([true_count_op, avg_loss], {is_training: False})
+                                true_count += c
+                                val_loss += l
+                            except tf.errors.OutOfRangeError as e:
+                                break
+                        # add val accuracy to summary
+                        acc = true_count / NUM_VAL_VIDS
+                        tf.logging.info('val accuracy: %.3f', acc)
+                        acc_summ = tf.Summary(value=[
+                            tf.Summary.Value(tag="val_acc", simple_value=acc)
+                        ])
+                        summary_writer.add_summary(acc_summ, it)
+                        # add val loss to summary
+                        val_loss = val_loss / int(NUM_VAL_VIDS / NUM_GPUS / BATCH_SIZE)
+                        tf.logging.info('val loss: %.3f', val_loss)
+                        val_loss_summ = tf.Summary(value=[
+                            tf.Summary.Value(tag="val_loss", simple_value=val_loss)
+                        ])
+                        summary_writer.add_summary(val_loss_summ, it)
+                        val_time = time.time() - val_start
+                        saver.save(sess, os.path.join(ckpt_path, 'model_ckpt'), it)
+
                     # if it % THROUGH_PUT_ITER == 0 and it > 0:
                     #     duration = time.time() - last_time - val_time
                     #     steps = it - last_step
@@ -213,35 +245,6 @@ if __name__ == '__main__':
                     print(e)
                     sys.exit(1)
 
-            ### PERFORM VALIDATION
 
-            sess.run(val_init_op)
-            val_start = time.time()
-            tf.logging.info('validating...')
-            true_count = 0
-            val_loss = 0
-            while True:
-                try:
-                    c, l = sess.run([true_count_op, avg_loss], {is_training: False})
-                    true_count += c
-                    val_loss += l
-                except tf.errors.OutOfRangeError as e:
-                    break
-            # add val accuracy to summary
-            acc = true_count / NUM_VAL_VIDS
-            tf.logging.info('val accuracy: %.3f', acc)
-            acc_summ = tf.Summary(value=[
-                tf.Summary.Value(tag="val_acc", simple_value=acc)
-            ])
-            summary_writer.add_summary(acc_summ, it)
-            # add val loss to summary
-            val_loss = val_loss / int(NUM_VAL_VIDS / NUM_GPUS / BATCH_SIZE)
-            tf.logging.info('val loss: %.3f', val_loss)
-            val_loss_summ = tf.Summary(value=[
-                tf.Summary.Value(tag="val_loss", simple_value=val_loss)
-            ])
-            summary_writer.add_summary(val_loss_summ, it)
-            val_time = time.time() - val_start
-            saver.save(sess, os.path.join(ckpt_path, 'model_ckpt'), it)
 
         summary_writer.close()
