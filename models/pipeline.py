@@ -4,12 +4,14 @@ import numpy as np
 from scipy import misc
 from datetime import datetime
 from config import *
-
+from config import _DEBUG
 
 NUM_FRAMES = 64
 CROP_SIZE = 224
 BATCH_SIZE = 3
+FRAME_STRIDE = 5
 STRIDE = NUM_FRAMES
+
 
 class Pipeline(object):
     def __init__(self, filepaths, cls_dict_fp):
