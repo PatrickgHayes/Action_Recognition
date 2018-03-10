@@ -11,11 +11,11 @@ import numpy as np
 NUM_CLASSES = 15
 NUM_FRAMES = 64
 CROP_SIZE = 224
-BATCH_SIZE = 3
+BATCH_SIZE = 5 
 STRIDE = NUM_FRAMES
 CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
 DROPOUT_KEEP_PROB = 0.2
-MAX_ITER = 10
+MAX_EPOCH = 10
 NUM_GPUS = 2
 
 NUM_VAL_VIDS = 357
@@ -34,15 +34,16 @@ LR = 0.01
 TMPDIR = "./tmp"
 LOGDIR = "./log"
 # THROUGH_PUT_ITER = 5
-SAVE_ITER = 5
-VAL_ITER = 10
-DISPLAY_ITER = 2
+SAVE_ITER = 50
+VAL_ITER = 100
+DISPLAY_ITER = 10
+SHUFFLE_SIZE = 50
 
 
 # build the model
 def inference(rgb_inputs):
     with tf.variable_scope('RGB'):
-        rgb_model = s3d.InceptionI3d(
+        rgb_model = i3d.InceptionI3d(
             NUM_CLASSES, spatial_squeeze=True, final_endpoint='Logits')
         rgb_logits, _ = rgb_model(rgb_inputs, is_training=True, dropout_keep_prob=DROPOUT_KEEP_PROB)
     return rgb_logits
@@ -111,11 +112,11 @@ if __name__ == '__main__':
     tower_losses = []
     tower_logits_labels = []
 
-    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE)
+    train_queue = train_pipeline.get_dataset().shuffle(buffer_size=SHUFFLE_SIZE).batch(BATCH_SIZE)
     train_iterator = tf.contrib.data.Iterator.from_structure(train_queue.output_types, train_queue.output_shapes)
     train_init_op = train_iterator.make_initializer(train_queue)
 
-    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=3).batch(BATCH_SIZE)
+    val_queue = val_pipeline.get_dataset().shuffle(buffer_size=SHUFFLE_SIZE).batch(BATCH_SIZE)
     val_iterator = tf.contrib.data.Iterator.from_structure(val_queue.output_types, val_queue.output_shapes)
     val_init_op = val_iterator.make_initializer(val_queue)
 
@@ -177,7 +178,7 @@ if __name__ == '__main__':
         last_time = time.time()
         last_step = 0
         val_time = 0
-        for epoch in range(MAX_ITER):
+        for epoch in range(MAX_EPOCH):
             sess.run(train_init_op)
             while True:
                 # print('==== EPOCH : ' + str(epoch) + ' || iter : ' + str(it))
@@ -185,7 +186,7 @@ if __name__ == '__main__':
                     _, loss_val = sess.run([train_op, avg_loss], {is_training: True})
 
                     if it % DISPLAY_ITER == 0:
-                        tf.logging.info('step %d, loss = %.3f', it, loss_val)
+                        tf.logging.info('step %d, loss = %f', it, loss_val)
                         loss_summ = tf.Summary(value=[
                             tf.Summary.Value(tag="train_loss", simple_value=loss_val)
                         ])
@@ -210,14 +211,14 @@ if __name__ == '__main__':
                                 break
                         # add val accuracy to summary
                         acc = true_count / NUM_VAL_VIDS
-                        tf.logging.info('val accuracy: %.3f', acc)
+                        tf.logging.info('val accuracy: %f', acc)
                         acc_summ = tf.Summary(value=[
                             tf.Summary.Value(tag="val_acc", simple_value=acc)
                         ])
                         summary_writer.add_summary(acc_summ, it)
                         # add val loss to summary
                         val_loss = val_loss / int(NUM_VAL_VIDS / NUM_GPUS / BATCH_SIZE)
-                        tf.logging.info('val loss: %.3f', val_loss)
+                        tf.logging.info('val loss: %f', val_loss)
                         val_loss_summ = tf.Summary(value=[
                             tf.Summary.Value(tag="val_loss", simple_value=val_loss)
                         ])

@@ -10,9 +10,9 @@ CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
 #DATA_DIR = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/data"
-VID_DIR = '../config/micro_kinetics_train.txt'
+VID_DIR = '../config/val.txt'
 #CLS_DICT_FP = "/Users/dewalgupta/Documents/ucsd/291d/activitynet/Action_Recognition/config/label_map_2.txt"
-CLS_DICT_FP = "../config/label_map_micro_kinetics.txt"
+CLS_DICT_FP = "../config/label_map.txt"
 
 _DEBUG = False
 
@@ -35,7 +35,7 @@ class Pipeline(object):
         with open(self._cls_fp, 'r') as f:
             for ind, line in enumerate(f.readlines()):
                 cls_name = line.strip()
-                self.cls_dict[cls_name.lower()] = int(ind)
+                self.cls_dict[cls_name.lower()] = float(ind)
 
     def getNumVids(self):
         return len(self.videos)
