@@ -6,15 +6,18 @@ from configparser import ConfigParser, ExtendedInterpolation
 config = ConfigParser(interpolation=ExtendedInterpolation())
 config.read("../config/config.ini")
 
-def main():
-    DATA_DIR = config['paths']['train_data']
+def main(TRAIN_DIR, VAL_DIR, TRAIN_OUT, VAL_OUT, LABEL_OUT, limit=None):
     OUTPUT_DIR = config['paths']['base_fp'] + '/config/'
-    os.chdir(DATA_DIR)
+    os.chdir(TRAIN_DIR)
 
     categories = []
     all_vids = []
-    for label in os.listdir(DATA_DIR):
+    val_vids = []
+    for label in os.listdir(TRAIN_DIR):
         if label.startswith('.'):
+            continue
+
+        if len(categories) == limit:
             continue
 
         categories.append(label)
@@ -23,15 +26,25 @@ def main():
             all_vids.append(filepath)
 
     random.shuffle(all_vids)
-    with open(os.path.join(OUTPUT_DIR, "train_test.txt"), 'w') as f:
+    with open(os.path.join(OUTPUT_DIR, TRAIN_OUT), 'w') as f:
         for path in all_vids:
-            if os.listdir(os.path.join(DATA_DIR, path)):
-                f.write(os.path.join(DATA_DIR, path) + "\n")
+            if os.listdir(os.path.join(TRAIN_DIR, path)):
+                f.write(os.path.join(TRAIN_DIR, path) + "\n")
 
-    with open(os.path.join(OUTPUT_DIR, "label_map_test.txt"), 'w') as f:
+    os.chdir(VAL_DIR)
+    for label in categories:
+        for video in glob.glob(os.path.join(label, "*.mp4")):
+            filepath = os.path.splitext(video)[0]
+            val_vids.append(filepath)
+
+
+    with open(os.path.join(OUTPUT_DIR, LABEL_OUT), 'w') as f:
         for cat in categories:
             f.write(cat + "\n")
 
 
 if __name__ == '__main__':
-    main()
+    TRAIN_DIR = config['paths']['train_data']
+    VAL_DIR = config['paths']['val_data']
+    main(TRAIN_DIR, VAL_DIR, 'train_micro.txt', 'val_micro.txt', 'label_map_micro.txt', 5)
+)
