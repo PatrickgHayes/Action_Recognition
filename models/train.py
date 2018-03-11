@@ -5,23 +5,23 @@ import s3d
 import i3d
 import tensorflow as tf
 from pipeline import Pipeline
-import numpy as np
+from configparser import ConfigParser, ExtendedInterpolation
 
+config = ConfigParser(interpolation=ExtendedInterpolation())
+config.read('../config/config.ini')
 
-NUM_CLASSES = 15
-NUM_FRAMES = 64
-CROP_SIZE = 224
-BATCH_SIZE = 5 
+NUM_CLASSES = config['hp'].getint('num_classes')
+NUM_FRAMES = config['hp'].getint('num_frames')
+CROP_SIZE = config['hp'].getint('crop_size')
+BATCH_SIZE = config['hp'].getint('batch_size')
 STRIDE = NUM_FRAMES
-CLS_DICT_FP = "/datasets/home/71/671/cs291dag/Action_Recognition/config/label_map.txt"
-DROPOUT_KEEP_PROB = 0.2
-MAX_EPOCH = 10
-NUM_GPUS = 2
+CLS_DICT_FP = config['paths']['cls_dict_fp']
+DROPOUT_KEEP_PROB = config['hp'].getint('dropout_keep_prob')
+MAX_EPOCH = config['hp'].getint('max_epoch')
+NUM_GPUS = config['hp']['num_gpus']
 
-NUM_VAL_VIDS = 357
-
-TRAIN_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/train.txt"
-VAL_DATA = "/datasets/home/71/671/cs291dag/Action_Recognition/config/val.txt"
+TRAIN_DATA = config['paths']['train_fp']
+VAL_DATA = config['paths']['val_fp']
 
 '''
 CHECKPOINT_PATHS = {
@@ -30,20 +30,20 @@ CHECKPOINT_PATHS = {
 }
 '''
 
-LR = 0.01
-TMPDIR = "./tmp"
-LOGDIR = "./log"
+LR = config['hp'].getint('lr')
+TMPDIR = config['paths']['tmpdir']
+LOGDIR = config['paths']['logdir']
 # THROUGH_PUT_ITER = 5
-SAVE_ITER = 50
-VAL_ITER = 100
-DISPLAY_ITER = 10
-SHUFFLE_SIZE = 50
+SAVE_ITER = config['iter'].getint('save_iter')
+VAL_ITER = config['iter'].getint('val_iter')
+DISPLAY_ITER = config['iter'].getint('display_iter')
+SHUFFLE_SIZE = config['iter'].getint('shuffle_buffer')
 
 
 # build the model
 def inference(rgb_inputs):
     with tf.variable_scope('RGB'):
-        rgb_model = i3d.InceptionI3d(
+        rgb_model = s3d.InceptionI3d(
             NUM_CLASSES, spatial_squeeze=True, final_endpoint='Logits')
         rgb_logits, _ = rgb_model(rgb_inputs, is_training=True, dropout_keep_prob=DROPOUT_KEEP_PROB)
     return rgb_logits

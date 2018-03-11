@@ -1,6 +1,10 @@
 .*.swp
 .DS_Store
+*.ipynb
 utils/config.py
+.idea/
+models/tmp/
+models/log/
 config/*
 # Byte-compiled / optimized / DLL files
 __pycache__/

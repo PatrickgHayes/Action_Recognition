@@ -1,17 +1,21 @@
 import tensorflow as tf
-import os, random
+import os
+import random
 import numpy as np
 from scipy import misc
 from datetime import datetime
+from configparser import ConfigParser, ExtendedInterpolation
 
+config = ConfigParser(interpolation=ExtendedInterpolation())
+config.read('../config/config.ini')
 
-NUM_FRAMES = 64
-CROP_SIZE = 224
-BATCH_SIZE = 3
+NUM_FRAMES = config['hp'].getint('num_frames')
+CROP_SIZE = config['hp'].getint('crop_size')
+BATCH_SIZE = config['hp'].getint('batch_size')
 STRIDE = NUM_FRAMES
 
-VID_DIR = '../config/val.txt'
-CLS_DICT_FP = "../config/label_map.txt"
+VID_DIR = config['paths']['train_fp']
+CLS_DICT_FP = config['paths']['cls_dict_fp']
 
 _DEBUG = False
 
@@ -123,9 +127,7 @@ if __name__ == '__main__':
 
     NOTE: I created a videos_2.txt so I could test this out with a shorter dataset
     '''
-    BATCH_SIZE = 1
     FEATURE_SHAPE = (NUM_FRAMES, CROP_SIZE, CROP_SIZE, 3)
-
     pipeline = Pipeline(VID_DIR, CLS_DICT_FP)
 
     ################################
@@ -185,7 +187,7 @@ if __name__ == '__main__':
     #         except tf.errors.OutOfRangeError:
     #             break
 
-    dataset = pipeline.get_dataset() #.shuffle(buffer_size=2).batch(15)
+    dataset = pipeline.get_dataset().batch(BATCH_SIZE)
     iterator = tf.contrib.data.Iterator.from_structure(dataset.output_types, dataset.output_shapes)
     init_op = iterator.make_initializer(dataset)
     # features, label = batched_ds.make_one_shot_iterator().get_next()
