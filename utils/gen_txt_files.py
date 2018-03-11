@@ -37,6 +37,12 @@ def main(TRAIN_DIR, VAL_DIR, TRAIN_OUT, VAL_OUT, LABEL_OUT, limit=None):
             filepath = os.path.splitext(video)[0]
             val_vids.append(filepath)
 
+    random.shuffle(val_vids)
+    with open(os.path.join(OUTPUT_DIR, VAL_OUT), 'w') as f:
+        for path in all_vids:
+            if os.listdir(os.path.join(VAL_DIR, path)):
+                f.write(os.path.join(VAL_DIR, path) + "\n")
+
 
     with open(os.path.join(OUTPUT_DIR, LABEL_OUT), 'w') as f:
         for cat in categories:
@@ -46,5 +52,5 @@ def main(TRAIN_DIR, VAL_DIR, TRAIN_OUT, VAL_OUT, LABEL_OUT, limit=None):
 if __name__ == '__main__':
     TRAIN_DIR = config['paths']['train_data']
     VAL_DIR = config['paths']['val_data']
-    main(TRAIN_DIR, VAL_DIR, 'train_micro.txt', 'val_micro.txt', 'label_map_micro.txt', 5)
-)
+    main(TRAIN_DIR, VAL_DIR, 'train_micro.txt', 'val_micro.txt', 'label_map_micro.txt', 2)
+
