@@ -9,10 +9,9 @@ NUM_FRAMES = 64
 CROP_SIZE = 224
 BATCH_SIZE = 3
 STRIDE = NUM_FRAMES
-# VID_DIR = '../config/micro_kinetics_train.txt'
-VID_DIR = '../config/videos_2.txt'
-# CLS_DICT_FP = "../config/label_map_micro_kinetics.txt"
-CLS_DICT_FP = "../config/label_map_2.txt"
+
+VID_DIR = '../config/val.txt'
+CLS_DICT_FP = "../config/label_map.txt"
 
 _DEBUG = False
 
@@ -117,11 +116,11 @@ class Pipeline(object):
 if __name__ == '__main__':
     ### FOR TESTING PURPOSES:
     '''
-    There are two methods below that this one class can implement. By creating an 
+    There are two methods below that this one class can implement. By creating an
     object of type Pipeline, we can turn it into an iterable, or we can get a
     tensorflow Dataset object from it. Both the examples below accomplish the same
     thing and print (almost) the same things.
-    
+
     NOTE: I created a videos_2.txt so I could test this out with a shorter dataset
     '''
     BATCH_SIZE = 1
@@ -132,11 +131,11 @@ if __name__ == '__main__':
     ################################
     '''
     METHOD 1: USING FEED_DICT
-    This method we directly insert the data into the graph. It is 
+    This method we directly insert the data into the graph. It is
     supposed to be the fastest and most efficient method (supposedly).
     However, it does not give us any high level APIs for batching and/or
-    repeating our input datasets. 
-    
+    repeating our input datasets.
+
     Also NOTE: this is just another way to define the graph. This graph
     is really simple as it just consists of two "place-holders" that we supply
     when we run the session.
@@ -162,17 +161,17 @@ if __name__ == '__main__':
     ################################
     '''
     METHOD 2: USING THE DATA API
-    This is the preferred method by tensorflow as it makes use of the Data api 
-    that they provide. We can define it as part of our graph and it is really 
-    easy to run since we don't have to worry about feeding it into the graph 
+    This is the preferred method by tensorflow as it makes use of the Data api
+    that they provide. We can define it as part of our graph and it is really
+    easy to run since we don't have to worry about feeding it into the graph
     ourselves. This also gives us the higher level API access to do things like
-    create batches, repeat the datasets, or other things. 
-    
+    create batches, repeat the datasets, or other things.
+
     NOTE: in this run, it will print the last batch even though it is not of the
-    full batch size. The above can't do that because we don't pad the inputs and 
-    the try-except breaks when we try to access the next element in from iterable 
+    full batch size. The above can't do that because we don't pad the inputs and
+    the try-except breaks when we try to access the next element in from iterable
     when it doesn't have any more left. The data API handles all this under the hood
-    by itself. 
+    by itself.
     '''
     # dataset = pipeline.get_dataset()
     # batched_ds = dataset.shuffle(buffer_size=2).batch(BATCH_SIZE).repeat(2)
