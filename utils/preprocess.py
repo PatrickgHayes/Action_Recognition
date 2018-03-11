@@ -1,12 +1,16 @@
 import os
 import glob
 import subprocess
-import config
 from tqdm import tqdm
 from joblib import Parallel, delayed
+from configparser import ConfigParser, ExtendedInterpolation
+
+config = ConfigParser(interpolation=ExtendedInterpolation())
+config.read('../config/config.ini')
 
 ### GLOBALS
-dataset_dir = '/datasets/home/71/671/cs291dag/MiniKinetics/train/'
+# dataset_dir = '/datasets/home/71/671/cs291dag/MiniKinetics/train/'
+dataset_dir = config['paths']['train_data']
 ###
 
 

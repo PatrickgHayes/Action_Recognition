@@ -1,11 +1,14 @@
 import os
 import glob
 import random
+from configparser import ConfigParser, ExtendedInterpolation
 
+config = ConfigParser(interpolation=ExtendedInterpolation())
+config.read("../config/config.ini")
 
 def main():
-    DATA_DIR = "/datasets/home/71/671/cs291dag/MiniKinetics/train/"
-    OUTPUT_DIR = "/datasets/home/71/671/cs291dag/Action_Recognition/config/"
+    DATA_DIR = config['paths']['train_data']
+    OUTPUT_DIR = config['paths']['base_fp'] + '/config/'
     os.chdir(DATA_DIR)
 
     categories = []
@@ -20,12 +23,12 @@ def main():
             all_vids.append(filepath)
 
     random.shuffle(all_vids)
-    with open(os.path.join(OUTPUT_DIR, "train.txt"), 'w') as f:
+    with open(os.path.join(OUTPUT_DIR, "train_test.txt"), 'w') as f:
         for path in all_vids:
             if os.listdir(os.path.join(DATA_DIR, path)):
                 f.write(os.path.join(DATA_DIR, path) + "\n")
 
-    with open(os.path.join(OUTPUT_DIR, "label_map.txt"), 'w') as f:
+    with open(os.path.join(OUTPUT_DIR, "label_map_test.txt"), 'w') as f:
         for cat in categories:
             f.write(cat + "\n")
 
