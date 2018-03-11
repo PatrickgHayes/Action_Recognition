@@ -108,7 +108,7 @@ class SepConv(snt.AbstractModule):
         return net
 
 
-class InceptionI3d(snt.AbstractModule):
+class s3d(snt.AbstractModule):
     """Inception-v1 I3D architecture.
   
     The model is introduced in:
@@ -150,7 +150,7 @@ class InceptionI3d(snt.AbstractModule):
     )
 
     def __init__(self, num_classes=400, spatial_squeeze=True,
-                 final_endpoint='Logits', name='inception_i3d'):
+                 final_endpoint='Logits', name='s3d'):
         """Initializes I3D model instance.
     
         Args:
@@ -173,7 +173,7 @@ class InceptionI3d(snt.AbstractModule):
         if final_endpoint not in self.VALID_ENDPOINTS:
             raise ValueError('Unknown final endpoint %s' % final_endpoint)
 
-        super(InceptionI3d, self).__init__(name=name)
+        super(s3d, self).__init__(name=name)
         self._num_classes = num_classes
         self._spatial_squeeze = spatial_squeeze
         self._final_endpoint = final_endpoint
