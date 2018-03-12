@@ -15,9 +15,9 @@ CROP_SIZE = config['hp'].getint('crop_size')
 BATCH_SIZE = config['hp'].getint('batch_size')
 STRIDE = NUM_FRAMES
 CLS_DICT_FP = config['paths']['cls_dict_fp']
-DROPOUT_KEEP_PROB = config['hp'].getint('dropout_keep_prob')
+DROPOUT_KEEP_PROB = config['hp'].getfloat('dropout_keep_prob')
 MAX_EPOCH = config['hp'].getint('max_epoch')
-NUM_GPUS = config['hp']['num_gpus']
+NUM_GPUS = config['hp'].getint('num_gpus')
 
 TRAIN_DATA = config['paths']['train_fp']
 VAL_DATA = config['paths']['val_fp']
@@ -29,7 +29,7 @@ CHECKPOINT_PATHS = {
 }
 '''
 
-LR = config['hp'].getint('lr')
+LR = config['hp'].getfloat('lr')
 TMPDIR = config['paths']['tmpdir']
 LOGDIR = config['paths']['logdir']
 # THROUGH_PUT_ITER = 5
