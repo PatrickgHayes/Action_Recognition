@@ -151,9 +151,6 @@ if __name__ == '__main__':
         os.mkdir(TMPDIR)
     saver = tf.train.Saver(max_to_keep=3)
     ckpt_path = os.path.join(TMPDIR, 'ckpt')
-    print("*********************")
-    print(ckpt_path)
-    print("*********************")
     if not os.path.exists(ckpt_path):
         os.mkdir(ckpt_path)
 
@@ -163,11 +160,9 @@ if __name__ == '__main__':
         # rgb_def_state = get_pretrained_save_state()
         ckpt = tf.train.get_checkpoint_state(ckpt_path)
         if ckpt and ckpt.model_checkpoint_path:
-            print("********* CHECKPOINT FOUND **********")
             tf.logging.info('Restoring from: %s', ckpt.model_checkpoint_path)
             saver.restore(sess, ckpt.all_model_checkpoint_paths[-1])
         else:
-            print("********* CHECKPOINT NOT FOUND **********")
             tf.logging.info('No checkpoint file found, restoring pretrained weights...')
             # rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb_imagenet'])
             # rgb_def_state.restore(sess, CHECKPOINT_PATHS['rgb'])
