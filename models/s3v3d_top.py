@@ -205,15 +205,15 @@ class s3d(snt.AbstractModule):
 
         net = inputs
         end_points = {}
-        end_point = 'Conv3d_0_3x3x3'
+        end_point = 'Conv3d_0_1x3x3'
         net = SepConv(output_channels=32, kernel_shape=[1, 3, 3], stride=[1, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
-        end_point = 'Conv3d_1_3x3x3'
+        end_point = 'Conv3d_1_1x3x3'
         net = SepConv(output_channels=32, kernel_shape=[1, 3, 3], name=end_point, padding=snt.VALID)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
-        end_point = 'Conv3d_2_3x3x3'
+        end_point = 'Conv3d_2_1x3x3'
         net = SepConv(output_channels=64, kernel_shape=[1, 3, 3], name=end_point, padding=snt.SAME)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
@@ -225,11 +225,11 @@ class s3d(snt.AbstractModule):
         net = Unit3D(output_channels=80, kernel_shape=[1, 3, 3], name=end_point, padding=snt.VALID)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
-        end_point = 'Conv3d_4_3x3x3'
+        end_point = 'Conv3d_4_1x3x3'
         net = SepConv(output_channels=192, kernel_shape=[1, 3, 3], stride=[1, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
-        end_point = 'Conv3d_5_3x3x3'
+        end_point = 'Conv3d_5_1x3x3'
         net = SepConv(output_channels=288, kernel_shape=[1, 3, 3], name=end_point, padding=snt.VALID)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
