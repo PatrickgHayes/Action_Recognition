@@ -479,7 +479,7 @@ class s3d(snt.AbstractModule):
             print("**************")
             print(net.get_shape())
             print("**************")
-            net = tf.nn.avg_pool3d(net, ksize=[1, 2, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
+            net = tf.nn.avg_pool3d(net, ksize=[1, 63, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
             net = tf.nn.dropout(net, dropout_keep_prob)
             logits = Unit3D(output_channels=self._num_classes, kernel_shape=[1, 1, 1], activation_fn=None, use_batch_norm=False, use_bias=True, name='Conv3d_0c_1x1x1', padding=snt.VALID)(net, is_training=is_training)
             if self._spatial_squeeze:
