@@ -317,14 +317,14 @@ class s3d(snt.AbstractModule):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
                 branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
-                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
                 branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
@@ -338,14 +338,14 @@ class s3d(snt.AbstractModule):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
                 branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
-                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
                 branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
@@ -359,14 +359,14 @@ class s3d(snt.AbstractModule):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
                 branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
-                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
                 branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
@@ -380,14 +380,14 @@ class s3d(snt.AbstractModule):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
                 branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
-                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
                 branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 5, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 5], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 5, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
@@ -476,6 +476,9 @@ class s3d(snt.AbstractModule):
 
         end_point = 'Logits'
         with tf.variable_scope(end_point):
+            print("**************")
+            print(net.get_shape())
+            print("**************")
             net = tf.nn.avg_pool3d(net, ksize=[1, 2, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
             net = tf.nn.dropout(net, dropout_keep_prob)
             logits = Unit3D(output_channels=self._num_classes, kernel_shape=[1, 1, 1], activation_fn=None, use_batch_norm=False, use_bias=True, name='Conv3d_0c_1x1x1', padding=snt.VALID)(net, is_training=is_training)
