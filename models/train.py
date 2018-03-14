@@ -1,7 +1,7 @@
 import sys
 import os
 import time
-import s3dv3_mod
+import s3di3_top
 import tensorflow as tf
 from pipeline import Pipeline
 from configparser import ConfigParser, ExtendedInterpolation
@@ -42,7 +42,7 @@ SHUFFLE_SIZE = config['iter'].getint('shuffle_buffer')
 # build the model
 def inference(rgb_inputs):
     with tf.variable_scope('RGB'):
-        rgb_model = s3dv3_mod.s3d(
+        rgb_model = s3di3_top.s3d(
             NUM_CLASSES, spatial_squeeze=True, final_endpoint='Logits')
         rgb_logits, _ = rgb_model(rgb_inputs, is_training=True, dropout_keep_prob=DROPOUT_KEEP_PROB)
     return rgb_logits
