@@ -487,7 +487,8 @@ class s3d(snt.AbstractModule):
 
         end_point = 'Logits'
         with tf.variable_scope(end_point):
-            net_shape = net.get_shape()[1:4] - [1, 0, 0]
+            net_shape = net.get_shape()[1:4]
+            net_shape = net_shape.as_list() - [1, 0, 0]
             k_size = [1]
             k_size.extend(net_shape)
             k_size.append(1)
