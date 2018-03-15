@@ -238,7 +238,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Conv3d_4_1x3x3'
-        net = SepConv(output_channels=192, kernel_shape=[1, 3, 3], stride=[2, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
+        net = SepConv(output_channels=192, kernel_shape=[1, 3, 3], name=end_point, padding=snt.VALID)(net, is_training=is_training)
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
@@ -426,14 +426,14 @@ class s3d(snt.AbstractModule):
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_0 = SepConv(output_channels=320, kernel_shape=[3, 3, 3], padding=snt.VALID, name='Conv3d_0b_3x3x3')(branch_0, is_training=is_training)
+                branch_0 = SepConv(output_channels=320, kernel_shape=[3, 3, 3], stride=[2, 2, 2], padding=snt.VALID, name='Conv3d_0b_3x3x3')(branch_0, is_training=is_training)
             with tf.variable_scope('Branch_1'):
                 branch_1 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
                 branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0b_1x7x1')(branch_1, is_training=is_training)
                 branch_1 = SepConv(output_channels=192, kernel_shape=[1, 1, 7], name='Conv3d_0c_1x1x7')(branch_1, is_training=is_training)
-                branch_1 = SepConv(output_channels=192, kernel_shape=[3, 3, 3], padding=snt.VALID, name='Conv3d_0d_3x3x3')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[3, 3, 3], stride=[2, 2, 2], padding=snt.VALID, name='Conv3d_0d_3x3x3')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
-                branch_2 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID, name='MaxPool3d_0a_3x3')
+                branch_2 = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding=snt.VALID, name='MaxPool3d_0a_3x3')
             net = tf.concat([branch_0, branch_1, branch_2], 4)
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         end_points[end_point] = net
