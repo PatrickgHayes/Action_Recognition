@@ -144,7 +144,7 @@ class s3d(snt.AbstractModule):
         'Mixed5_17x17x768',
         'Mixed6_17x17x768',
         'Mixed7_17x17x768',
-        'AuxLogits',
+        # 'AuxLogits',
         'Mixed8_8x8x1280',
         'Mixed9_8x8x1280',
         'Mixed10_8x8x1280',
