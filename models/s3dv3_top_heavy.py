@@ -531,7 +531,7 @@ class s3d(snt.AbstractModule):
 
         end_point = 'Logits'
         with tf.variable_scope(end_point):
-            net = tf.nn.avg_pool3d(net, ksize=[1, 63, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
+            net = tf.nn.avg_pool3d(net, ksize=[1, 15, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
             net = tf.nn.dropout(net, dropout_keep_prob)
 
             if DEBUG: print(end_point + ":\t\t" + str(net.shape))
