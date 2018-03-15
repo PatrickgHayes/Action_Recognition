@@ -145,7 +145,7 @@ class s3d(snt.AbstractModule):
         'Mixed5_17x17x768',
         'Mixed6_17x17x768',
         'Mixed7_17x17x768',
-        'AuxLogits',
+        #'AuxLogits',
         'Mixed8_8x8x1280',
         'Mixed9_8x8x1280',
         'Mixed10_8x8x1280',
@@ -207,7 +207,7 @@ class s3d(snt.AbstractModule):
         net = inputs
         end_points = {}
         end_point = 'Conv3d_0_1x3x3'
-        net = SepConv(output_channels=32, kernel_shape=[1, 3, 3], stride=[1, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
+        net = SepConv(output_channels=32, kernel_shape=[1, 3, 3], stride=[2, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -242,7 +242,7 @@ class s3d(snt.AbstractModule):
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
         end_point = 'Conv3d_4_1x3x3'
-        net = SepConv(output_channels=192, kernel_shape=[1, 3, 3], stride=[1, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
+        net = SepConv(output_channels=192, kernel_shape=[1, 3, 3], stride=[2, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
