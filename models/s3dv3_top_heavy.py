@@ -426,14 +426,14 @@ class s3d(snt.AbstractModule):
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_0 = SepConv(output_channels=320, kernel_shape=[3, 3, 3], stride=[2,2,2], padding=snt.VALID, name='Conv3d_0b_3x3x3')(branch_0, is_training=is_training)
+                branch_0 = SepConv(output_channels=320, kernel_shape=[3, 3, 3], padding=snt.VALID, name='Conv3d_0b_3x3x3')(branch_0, is_training=is_training)
             with tf.variable_scope('Branch_1'):
                 branch_1 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
                 branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0b_1x7x1')(branch_1, is_training=is_training)
                 branch_1 = SepConv(output_channels=192, kernel_shape=[1, 1, 7], name='Conv3d_0c_1x1x7')(branch_1, is_training=is_training)
-                branch_1 = SepConv(output_channels=192, kernel_shape=[3, 3, 3], stride=[2, 2, 2], padding=snt.VALID, name='Conv3d_0d_3x3x3')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[3, 3, 3], padding=snt.VALID, name='Conv3d_0d_3x3x3')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
-                branch_2 = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding=snt.VALID, name='MaxPool3d_0a_3x3')
+                branch_2 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID, name='MaxPool3d_0a_3x3')
             net = tf.concat([branch_0, branch_1, branch_2], 4)
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         end_points[end_point] = net
@@ -487,12 +487,7 @@ class s3d(snt.AbstractModule):
 
         end_point = 'Logits'
         with tf.variable_scope(end_point):
-            net_shape = net.get_shape()[1:4]
-            net_shape[0] = net_shape[0] - 1
-            k_size = [1]
-            k_size.extend(net_shape)
-            k_size.append(1)
-            net = tf.nn.avg_pool3d(net, ksize=k_size, strides=[1, 1, 1, 1, 1], padding=snt.VALID)
+            net = tf.nn.avg_pool3d(net, ksize=[1, 2, 5, 5, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
             net = tf.nn.dropout(net, dropout_keep_prob)
             if DEBUG: print(end_point + ":\t\t" + str(net.shape))
             logits = Unit3D(output_channels=self._num_classes, kernel_shape=[1, 1, 1], activation_fn=None, use_batch_norm=False, use_bias=True, name='Conv3d_0c_1x1x1', padding=snt.VALID)(net, is_training=is_training)
