@@ -145,7 +145,7 @@ class s3d(snt.AbstractModule):
         'Mixed5_17x17x768',
         'Mixed6_17x17x768',
         'Mixed7_17x17x768',
-        'AuxLogits',
+        #'AuxLogits',
         'Mixed8_8x8x1280',
         'Mixed9_8x8x1280',
         'Mixed10_8x8x1280',
@@ -531,7 +531,7 @@ class s3d(snt.AbstractModule):
 
         end_point = 'Logits'
         with tf.variable_scope(end_point):
-            net = tf.nn.avg_pool3d(net, ksize=[1, 16, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
+            net = tf.nn.avg_pool3d(net, ksize=[1, 15, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
             net = tf.nn.dropout(net, dropout_keep_prob)
 
             if DEBUG: print(end_point + ":\t\t" + str(net.shape))
