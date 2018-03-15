@@ -134,13 +134,13 @@ class s3d(snt.AbstractModule):
         'Conv3d_1_1x3x3',
         'Conv3d_2_1x3x3',
         'MaxPool3d_1_1x3x3',
-        'Conv3d_3_1x3x3',
+        'Conv3d_3_1x1x1',
         'Conv3d_4_1x3x3',
-        'Conv3d_5_1x3x3',
-        'Mixed0_35x35x288',
+        'MaxPool3d_2_1x3x3'
+        'Mixed0_35x35x256',
         'Mixed1_35x35x288',
         'Mixed2_35x35x288',
-        'Mixed3_17x17x768',
+        'Mixed3_17x17x480',
         'Mixed4_17x17x768',
         'Mixed5_17x17x768',
         'Mixed6_17x17x768',
@@ -206,59 +206,52 @@ class s3d(snt.AbstractModule):
 
         net = inputs
         end_points = {}
+
         end_point = 'Conv3d_0_1x3x3'
         net = SepConv(output_channels=32, kernel_shape=[1, 3, 3], stride=[2, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
+
         end_point = 'Conv3d_1_1x3x3'
         net = SepConv(output_channels=32, kernel_shape=[1, 3, 3], name=end_point, padding=snt.VALID)(net, is_training=is_training)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
+
         end_point = 'Conv3d_2_1x3x3'
         net = SepConv(output_channels=64, kernel_shape=[1, 3, 3], name=end_point, padding=snt.SAME)(net, is_training=is_training)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
+
         end_point = 'MaxPool3d_1_1x3x3'
         net = tf.nn.max_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 2, 2, 1], padding=snt.VALID, name=end_point)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
+
         end_point = 'Conv3d_3_1x1x1'
-        net = Unit3D(output_channels=80, kernel_shape=[1, 3, 3], name=end_point, padding=snt.VALID)(net, is_training=is_training)
-
+        net = Unit3D(output_channels=80, kernel_shape=[1, 1, 1], name=end_point, padding=snt.VALID)(net, is_training=is_training)
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
+
         end_point = 'Conv3d_4_1x3x3'
         net = SepConv(output_channels=192, kernel_shape=[1, 3, 3], stride=[2, 2, 2], name=end_point, padding=snt.VALID)(net, is_training=is_training)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
-        end_point = 'Conv3d_5_1x3x3'
-        net = SepConv(output_channels=288, kernel_shape=[1, 3, 3], name=end_point, padding=snt.VALID)(net, is_training=is_training)
 
+        end_point = 'MaxPool3d_2_1x3x3'
+        net = tf.nn.max_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 2, 2, 1], padding=snt.VALID, name=end_point)
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
         # inception blocks
 
-        end_point = 'Mixed0_35x35x288'
+        end_point = 'Mixed0_35x35x256'
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -271,11 +264,9 @@ class s3d(snt.AbstractModule):
                 branch_2 = SepConv(output_channels=96, kernel_shape=[1, 3, 3], name='Conv3d_0c_3x3x3')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
-                branch_3 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
+                branch_3 = Unit3D(output_channels=32, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -294,9 +285,7 @@ class s3d(snt.AbstractModule):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -315,33 +304,20 @@ class s3d(snt.AbstractModule):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
-        end_point = 'Mixed3_17x17x768'
+        end_point = 'Mixed3_17x17x480'
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
-                branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_0 = SepConv(output_channels=384, kernel_shape=[3, 3, 3], stride=[2, 2, 2], padding=snt.VALID, name='Conv3d_0a_3x3x3')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
-                branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
-                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
-            with tf.variable_scope('Branch_2'):
-                branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
-            with tf.variable_scope('Branch_3'):
-                branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
-                branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
-            net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
+                branch_1 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_1 = SepConv(output_channels=96, kernel_shape=[3, 3, 3], name='Conv3d_0b_3x3x3')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=96, kernel_shape=[3, 3, 3], stride=[2, 2, 2], padding=snt.VALID, name='Conv3d_0c_3x3x3')(branch_1, is_training=is_training)
+            net = tf.concat([branch_0, branch_1], 4)
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -363,9 +339,7 @@ class s3d(snt.AbstractModule):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -374,22 +348,20 @@ class s3d(snt.AbstractModule):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
-                branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = Unit3D(output_channels=160, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_1 = SepConv(output_channels=160, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
                 branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
-                branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = Unit3D(output_channels=160, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_2 = SepConv(output_channels=160, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=160, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=160, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
                 branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -398,22 +370,20 @@ class s3d(snt.AbstractModule):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
-                branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = Unit3D(output_channels=160, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_1 = SepConv(output_channels=160, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
                 branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
-                branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = Unit3D(output_channels=160, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_2 = SepConv(output_channels=160, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=160, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=160, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
                 branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -422,22 +392,20 @@ class s3d(snt.AbstractModule):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
             with tf.variable_scope('Branch_1'):
-                branch_1 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x1x7')(branch_1, is_training=is_training)
                 branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x7x1')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
-                branch_2 = Unit3D(output_channels=128, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
-                branch_2 = SepConv(output_channels=128, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 1, 7], name='Conv3d_0b_1x7x1')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0c_1x1x7')(branch_2, is_training=is_training)
+                branch_2 = SepConv(output_channels=192, kernel_shape=[1, 1, 7], name='Conv3d_0d_1x7x1')(branch_2, is_training=is_training)
                 branch_2 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0e_1x1x7')(branch_2, is_training=is_training)
             with tf.variable_scope('Branch_3'):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -457,25 +425,17 @@ class s3d(snt.AbstractModule):
         end_point = 'Mixed8_8x8x1280'
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
-                branch_0 = Unit3D(output_channels=320, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_0 = SepConv(output_channels=320, kernel_shape=[3, 3, 3], stride=[2,2,2], padding=snt.VALID, name='Conv3d_0b_3x3x3')(branch_0, is_training=is_training)
             with tf.variable_scope('Branch_1'):
-                branch_1 = Unit3D(output_channels=384, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_1_1 = SepConv(output_channels=384, kernel_shape=[1, 1, 3], name='Conv3d_0b_1x1x3')(branch_1, is_training=is_training)
-                branch_1_2 = SepConv(output_channels=384, kernel_shape=[1, 3, 1], name='Conv3d_0c_1x3x1')(branch_1, is_training=is_training)
-                branch_1 = tf.concat([branch_1_1, branch_1_2], 4)
+                branch_1 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 7, 1], name='Conv3d_0b_1x7x1')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[1, 1, 7], name='Conv3d_0c_1x1x7')(branch_1, is_training=is_training)
+                branch_1 = SepConv(output_channels=192, kernel_shape=[3, 3, 3], stride=[2, 2, 2], padding=snt.VALID, name='Conv3d_0d_3x3x3')(branch_1, is_training=is_training)
             with tf.variable_scope('Branch_2'):
-                branch_2 = Unit3D(output_channels=448, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
-                branch_2 = SepConv(output_channels=384, kernel_shape=[3, 3, 3], name='Conv3d_0b_1x1x3')(branch_2, is_training=is_training)
-                branch_2_1 = SepConv(output_channels=384, kernel_shape=[1, 1, 3], name='Conv3d_0c_1x1x3')(branch_2, is_training=is_training)
-                branch_2_2 = SepConv(output_channels=384, kernel_shape=[1, 3, 1], name='Conv3d_0c_1x3x1')(branch_2, is_training=is_training)
-                branch_2 = tf.concat([branch_2_1, branch_2_2], 4)
-            with tf.variable_scope('Branch_3'):
-                branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
-                branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
-            net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
+                branch_2 = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding=snt.VALID, name='MaxPool3d_0a_3x3')
+            net = tf.concat([branch_0, branch_1, branch_2], 4)
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -498,9 +458,7 @@ class s3d(snt.AbstractModule):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
@@ -523,19 +481,19 @@ class s3d(snt.AbstractModule):
                 branch_3 = tf.nn.avg_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 1, 1, 1], padding=snt.SAME)
                 branch_3 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0b_1x1x1')(branch_3, is_training=is_training)
             net = tf.concat([branch_0, branch_1, branch_2, branch_3], 4)
-
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Logits'
         with tf.variable_scope(end_point):
-            net = tf.nn.avg_pool3d(net, ksize=[1, 15, 23, 23, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
+            net_shape = net.get_shape()[1:4] - [1, 0, 0]
+            k_size = [1]
+            k_size.extend(net_shape)
+            k_size.append(1)
+            net = tf.nn.avg_pool3d(net, ksize=k_size, strides=[1, 1, 1, 1, 1], padding=snt.VALID)
             net = tf.nn.dropout(net, dropout_keep_prob)
-
             if DEBUG: print(end_point + ":\t\t" + str(net.shape))
-
             logits = Unit3D(output_channels=self._num_classes, kernel_shape=[1, 1, 1], activation_fn=None, use_batch_norm=False, use_bias=True, name='Conv3d_0c_1x1x1', padding=snt.VALID)(net, is_training=is_training)
             if self._spatial_squeeze:
                 logits = tf.squeeze(logits, [2, 3], name='SpatialSqueeze')
