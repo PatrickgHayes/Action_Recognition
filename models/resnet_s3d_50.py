@@ -3,7 +3,7 @@ import sonnet as snt
 import tensorflow as tf
 from tensorflow.python.keras import layers
 
-DEBUG = True
+DEBUG = False
 
 
 class Unit3D(snt.AbstractModule):
@@ -287,7 +287,7 @@ class ResNet(snt.AbstractModule):
         net = inputs
         end_points = {}
         end_point = 'Conv3d_0_1x7x7'
-        net = SepConv(output_channels=32, kernel_shape=[1, 7, 7], stride=[2, 2, 2], name=end_point, padding=snt.SAME)(net, is_training=is_training)
+        net = SepConv(output_channels=32, kernel_shape=[7, 7, 7], stride=[2, 2, 2], name=end_point, padding=snt.SAME)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -295,7 +295,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'MaxPool3d_1x3x3'
-        net = tf.nn.max_pool3d(net, ksize=[1, 1, 3, 3, 1], strides=[1, 1, 2, 2, 1], padding=snt.SAME, name=end_point)
+        net = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 1, 2, 2, 1], padding=snt.SAME, name=end_point)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -432,7 +432,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'AvgPool3d_1x7x7'
-        net = tf.nn.max_pool3d(net, ksize=[1, 1, 7, 7, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID, name=end_point)
+        net = tf.nn.max_pool3d(net, ksize=[1, 4, 7, 7, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID, name=end_point)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
