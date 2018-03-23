@@ -1,5 +1,7 @@
 # Action_Recognition
 CSE291D Group
+Dewal Gupta, Mithun Chakaravarrti, and Patrick Hayes
+UCSD Winter 2018
 
 ## Organization
 Code is organized into 4 main categories: download, utils, models and config.
