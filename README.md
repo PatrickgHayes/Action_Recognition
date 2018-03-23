@@ -1,6 +1,6 @@
 # Action_Recognition
-CSE291D Group
-Dewal Gupta, Mithun Chakaravarrti, and Patrick Hayes
+CSE291D Group <br>
+Dewal Gupta, Mithun Chakaravarrti, and Patrick Hayes <br>
 UCSD Winter 2018
 
 ## Organization
