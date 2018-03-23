@@ -287,7 +287,7 @@ class ResNet(snt.AbstractModule):
         net = inputs
         end_points = {}
         end_point = 'Conv3d_0_1x7x7'
-        net = SepConv(output_channels=32, kernel_shape=[1, 7, 7], stride=[2, 2, 2], name=end_point, padding=snt.SAME)(net, is_training=is_training)
+        net = SepConv(output_channels=64, kernel_shape=[7, 7, 7], stride=[2, 2, 2], name=end_point, padding=snt.SAME)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -303,7 +303,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'conv_block_2a'
-        net = ConvBlock(output_channels=[64, 64, 256], kernel_shape=[3, 3, 3], stride=[1, 1, 1], name=end_point)(net, is_training=is_training)
+        net = ConvBlock(output_channels=[64, 64, 256], kernel_shape=[5, 3, 3], stride=[1, 1, 1], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -319,7 +319,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'id_block_2c'
-        net = IdentityBlock(output_channels=[64, 64, 256], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = IdentityBlock(output_channels=[64, 64, 256], kernel_shape=[1, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -327,7 +327,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'conv_block_3a'
-        net = ConvBlock(output_channels=[128, 128, 512], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = ConvBlock(output_channels=[128, 128, 512], kernel_shape=[7, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -335,7 +335,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'id_block_3b'
-        net = IdentityBlock(output_channels=[128, 128, 512], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = IdentityBlock(output_channels=[128, 128, 512], kernel_shape=[5, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -351,7 +351,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'id_block_3d'
-        net = IdentityBlock(output_channels=[128, 128, 512], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = IdentityBlock(output_channels=[128, 128, 512], kernel_shape=[1, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -359,7 +359,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'conv_block_4a'
-        net = ConvBlock(output_channels=[256, 256, 1024], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = ConvBlock(output_channels=[256, 256, 1024], kernel_shape=[7, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -367,7 +367,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'id_block_4b'
-        net = IdentityBlock(output_channels=[256, 256, 1024], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = IdentityBlock(output_channels=[256, 256, 1024], kernel_shape=[5, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -391,7 +391,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'id_block_4e'
-        net = IdentityBlock(output_channels=[256, 256, 1024], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = IdentityBlock(output_channels=[256, 256, 1024], kernel_shape=[5, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 
@@ -399,7 +399,7 @@ class ResNet(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'id_block_4f'
-        net = IdentityBlock(output_channels=[256, 256, 1024], kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
+        net = IdentityBlock(output_channels=[256, 256, 1024], kernel_shape=[7, 3, 3], name=end_point)(net, is_training=is_training)
 
         if DEBUG: print(end_point + ":\t\t" + str(net.shape))
 

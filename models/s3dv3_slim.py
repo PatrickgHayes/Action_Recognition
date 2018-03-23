@@ -5,6 +5,7 @@ from __future__ import print_function
 import sonnet as snt
 import tensorflow as tf
 
+DEBUG = True
 
 class Unit3D(snt.AbstractModule):
     """Basic unit containing Conv3D + BatchNorm + non-linearity."""
@@ -206,30 +207,37 @@ class s3d(snt.AbstractModule):
         net = inputs
         end_points = {}
         end_point = 'Conv3d_0_3x3x3'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         net = SepConv(output_channels=32, kernel_shape=[3, 3, 3], stride=[2, 2, 2], name=end_point)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
         end_point = 'Conv3d_1_3x3x3'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         net = SepConv(output_channels=32, kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
         end_point = 'Conv3d_2_3x3x3'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         net = SepConv(output_channels=64, kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
         end_point = 'MaxPool3d_1_1x3x3'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         net = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding=snt.SAME, name=end_point)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
         end_point = 'Conv3d_3_1x1x1'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         net = Unit3D(output_channels=80, kernel_shape=[1, 1, 1], name=end_point)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
         end_point = 'Conv3d_4_3x3x3'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         net = SepConv(output_channels=192, kernel_shape=[3, 3, 3], name=end_point)(net, is_training=is_training)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
         end_point = 'MaxPool3d_2_1x3x3'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         net = tf.nn.max_pool3d(net, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding=snt.SAME, name=end_point)
         end_points[end_point] = net
         if self._final_endpoint == end_point: return net, end_points
@@ -237,6 +245,7 @@ class s3d(snt.AbstractModule):
         # inception blocks
 
         end_point = 'Mixed0_35x35x256'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -255,6 +264,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed1_35x35x288'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -273,6 +283,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed2_35x35x288'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=64, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -291,6 +302,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed3_17x17x768'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = SepConv(output_channels=384, kernel_shape=[3, 3, 3], stride=[2, 2, 2], padding=snt.VALID, name='Conv3d_0a_3x3x3')(net, is_training=is_training)
@@ -303,6 +315,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed4_17x17x768'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -327,6 +340,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed5_17x17x768'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -351,6 +365,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed6_17x17x768'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -375,6 +390,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed7_17x17x768'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -412,6 +428,7 @@ class s3d(snt.AbstractModule):
         # if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed8_8x8x1280'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=192, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -429,6 +446,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed9_8x8x2048'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=320, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -453,6 +471,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Mixed10_8x8x2048'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
             with tf.variable_scope('Branch_0'):
                 branch_0 = Unit3D(output_channels=320, kernel_shape=[1, 1, 1], name='Conv3d_0a_1x1x1')(net, is_training=is_training)
@@ -477,14 +496,9 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return net, end_points
 
         end_point = 'Logits'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         with tf.variable_scope(end_point):
-            # net_shape = [1, 2]
-            # net_shape.extend(net.get_shape()[1:3])
-            print("**************")
-            print(net.get_shape())
-            print("**************")
-            # net_shape.append(1)
-            net = tf.nn.avg_pool3d(net, ksize=[1, 2, 6, 6, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
+            net = tf.nn.avg_pool3d(net, ksize=[1, 1, 6, 6, 1], strides=[1, 1, 1, 1, 1], padding=snt.VALID)
             net = tf.nn.dropout(net, dropout_keep_prob)
             logits = Unit3D(output_channels=self._num_classes, kernel_shape=[1, 1, 1], activation_fn=None, use_batch_norm=False, use_bias=True, name='Conv3d_0c_1x1x1')(net, is_training=is_training)
             if self._spatial_squeeze:
@@ -494,6 +508,7 @@ class s3d(snt.AbstractModule):
         if self._final_endpoint == end_point: return averaged_logits, end_points
 
         end_point = 'Predictions'
+        if DEBUG: print(end_point + ":\t\t" + str(net.shape))
         predictions = tf.nn.softmax(averaged_logits)
         end_points[end_point] = predictions
         return predictions, end_points
